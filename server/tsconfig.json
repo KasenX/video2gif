@@ -20,14 +20,16 @@
         "moduleDetection": "force",                  // Use the module field in package.json to determine the module type
         "isolatedModules": true,                     // Prevents a few TS features which are unsafe when treating modules as isolated files
         "importHelpers": true,                       // Import helper functions from tslib
-        "types": ["node"]                            // Include type definitions for Node.js
+        "types": ["node"],                           // Include type definitions for Node.js
+        "typeRoots": ["./node_modules/@types", "./types"]
     },
     "include": [
-        "src/**/*.ts"                                // Include all TypeScript files in the src directory
+        "src/**/*.ts",
+        "types/**/*.d.ts"
     ],
     "exclude": [
-        "node_modules",                              // Exclude node_modules directory
-        "dist"                                       // Exclude dist directory
+        "node_modules",
+        "dist"
     ]
 }
   
