@@ -10,7 +10,6 @@
         "noImplicitOverride": true,                  // Makes the override keyword actually useful in classes
         "noImplicitAny": true,                       // Raise an error on expressions and declarations with an implied 'any' type
         "noImplicitThis": true,                      // Raise an error on 'this' expressions with an implied 'any' type
-        "noImplicitReturns": true,                   // Report error when not all code paths in function return a value
         "noFallthroughCasesInSwitch": true,          // Report errors for fallthrough cases in switch statements
         "forceConsistentCasingInFileNames": true,    // Ensure consistent casing in import paths
         "moduleResolution": "NodeNext",              // Module resolution strategy
