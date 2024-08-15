@@ -16,22 +16,22 @@ export const login = (req: Request, res: Response) => {
     }
 
     const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
-    res.send({ token });
+    res.send({ authToken: token });
 };
 
-export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
-        return res.status(403).send('A token is required for authentication');
+        return res.status(401).send('A token is required for authentication');
     }
 
     try {
-        const decoded = jwt.verify(token, secretKey);
-        req.user = decoded;
+        const user = jwt.verify(token, secretKey);
+        req.user = user;
     } catch (err) {
-        return res.status(401).send('Invalid Token');
+        return res.status(401).send('Invalid token');
     }
     return next();
 };
