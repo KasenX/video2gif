@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
+import type { JWTUserPayload } from '../../types/types';
 import jwt from 'jsonwebtoken';
 
 const secretKey = 'your_secret_key'; // TODO: env variable
@@ -15,7 +16,7 @@ export const login = (req: Request, res: Response) => {
         return res.status(401).send('Invalid email or password');
     }
 
-    const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
+    const token = jwt.sign({ user }, secretKey, { expiresIn: '1h' });
     res.send({ authToken: token });
 };
 
@@ -28,8 +29,8 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     }
 
     try {
-        const user = jwt.verify(token, secretKey);
-        req.user = user;
+        const decoded = jwt.verify(token, secretKey);
+        req.user = (decoded as JWTUserPayload).user;
     } catch (err) {
         return res.status(401).send('Invalid token');
     }

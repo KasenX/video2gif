@@ -3,6 +3,24 @@ import fileUpload from 'express-fileupload';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import ffmpeg from 'fluent-ffmpeg';
+import { findVideos, createVideo } from '../repositories/videoRepository';
+
+export const getVideos = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?.id;
+
+        if (!userId) {
+            return res.status(400).json({ error: 'User ID not provided.' });
+        }
+
+        const videos = await findVideos(userId);
+
+        return res.status(200).json({ videos });
+    } catch (err) {
+        console.error('Error fetching videos:', err);
+        return res.status(500).json({ error: 'Failed to retrieve videos' });
+    }
+};
 
 export const uploadVideo = (req: Request, res: Response) => {
     if (!req.files || !req.files.file) {
@@ -10,7 +28,25 @@ export const uploadVideo = (req: Request, res: Response) => {
     }
 
     const file = req.files.file as fileUpload.UploadedFile;
-    const uniqueFileName = `${uuidv4()}${path.extname(file.name)}`;
+    const fileName = path.parse(file.name).name;
+    const fileExtension = path.extname(file.name);
+    const uuid = uuidv4();
+    const userId = req.user?.id;
+
+    if (!userId) {
+        return res.status(400).json({ error: 'User ID not provided.' });
+    }
+
+    createVideo({
+        id: uuid,
+        user_id: userId,
+        name: fileName,
+        extension: fileExtension,
+        size: file.size,
+        uploaded: new Date()
+    });
+
+    const uniqueFileName = `${uuid}${fileExtension}`;
     const filePath = path.join(__dirname, '..', 'videos', uniqueFileName);
 
     file.mv(filePath, (err) => {
@@ -47,8 +83,8 @@ export const convertVideo = (req: Request, res: Response) => {
             });
         })
         .on('error', err => {
-            console.error(`Error during conversion: ${err.message}`);
-            res.status(500).send('Error during conversion');
+            console.error('Error during conversion', err);
+            res.status(500).json({ error: 'Error during conversion' });
         })
         .save(gifPath);
 }
