@@ -4,7 +4,8 @@ import jwt from 'jsonwebtoken';
 
 const secretKey = 'your_secret_key'; // TODO: env variable
 const users = [
-    { id: 1, email: 'user@example.com', password: 'password123' } // TODO: store in DB
+    { id: 1, email: 'user@example.com', password: 'password123' }, // TODO: store in DB
+    { id: 2, email: 'kuba.rone@gmail.com', password: '12345' }
 ];
 
 export const login = (req: Request, res: Response) => {
