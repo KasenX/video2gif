@@ -1,10 +1,55 @@
-import type { Request, Response } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import fileUpload from 'express-fileupload';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4, validate } from 'uuid';
 import path from 'path';
 import ffmpeg from 'fluent-ffmpeg';
 import { db } from '../db/connection';
-import { findVideos, createVideo } from '../repositories/videoRepository';
+import { findVideo, findVideos, createVideo } from '../repositories/videoRepository';
+
+export const checkVideoOwnership = async (req: Request, res: Response, next: NextFunction) => {
+    const videoId = req.params.videoId as string;
+    const userId = req.user?.id;
+
+    if (!userId) {
+        return res.status(400).json({ error: 'User ID not provided' });
+    }
+
+    if (!validate(videoId)) {
+        return res.status(400).json({ error: 'Invalid video ID' });
+    }
+
+    try {
+        const video = await findVideo(videoId, userId);
+
+        if (!video) {
+            return res.status(404).json({ error: 'Video not found' });
+        }
+
+        req.video = video;
+
+        next();
+    } catch (err) {
+        console.error('Error checking video ownership:', err);
+        return res.status(500).json({ error: 'Failed to check video ownership' });
+    }
+}
+
+export const getVideo = (req: Request, res: Response) => {
+    const video = req.video;
+
+    if (!video) {
+        return res.status(400).json({ error: 'Video not provided' });
+    }
+
+    const videoPath = path.join(__dirname, '..', 'videos', `${video.id}${video.extension}`);
+
+    res.sendFile(videoPath, (err) => {
+        if (err) {
+            console.error('Error serving video file', err);
+            res.status(500).json({ error: 'Failed to serve video file' });
+        }
+    });
+}
 
 export const getVideos = async (req: Request, res: Response) => {
     try {

@@ -1,13 +1,13 @@
 import express from 'express';
 import fileUpload from 'express-fileupload';
-import path from 'path';
 import { authenticateToken } from '../controllers/authController';
-import { getVideos, uploadVideo, convertVideo } from '../controllers/videoController';
+import { getVideo, checkVideoOwnership, getVideos, uploadVideo, convertVideo } from '../controllers/videoController';
 
 const router = express.Router();
 
 router.use(fileUpload());
-router.use('/', express.static(path.join(__dirname, '..', 'videos')));
+
+router.get('/:videoId', authenticateToken, checkVideoOwnership, getVideo);
 
 router.get('/', authenticateToken, getVideos);
 
