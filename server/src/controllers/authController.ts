@@ -13,11 +13,11 @@ export const login = (req: Request, res: Response) => {
     const user = users.find(u => u.email === email && u.password === password);
 
     if (!user) {
-        return res.status(401).send('Invalid email or password');
+        return res.status(401).json({ error: 'Invalid email or password' });
     }
 
     const token = jwt.sign({ user }, secretKey, { expiresIn: '1h' });
-    res.send({ authToken: token });
+    res.json({ authToken: token });
 };
 
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
@@ -25,14 +25,14 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
-        return res.status(401).send('A token is required for authentication');
+        return res.status(401).json({ error: 'A token is required for authentication' });
     }
 
     try {
         const decoded = jwt.verify(token, secretKey);
         req.user = (decoded as JWTUserPayload).user;
     } catch (err) {
-        return res.status(401).send('Invalid token');
+        return res.status(401).json({ error: 'Invalid token' });
     }
     return next();
 };

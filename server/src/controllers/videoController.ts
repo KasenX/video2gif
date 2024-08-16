@@ -10,7 +10,7 @@ export const getVideos = async (req: Request, res: Response) => {
         const userId = req.user?.id;
 
         if (!userId) {
-            return res.status(400).json({ error: 'User ID not provided.' });
+            return res.status(400).json({ error: 'User ID not provided' });
         }
 
         const videos = await findVideos(userId);
@@ -24,7 +24,7 @@ export const getVideos = async (req: Request, res: Response) => {
 
 export const uploadVideo = (req: Request, res: Response) => {
     if (!req.files || !req.files.file) {
-        return res.status(400).send('No video was uploaded.');
+        return res.status(400).json({ error: 'No video was uploaded' });
     }
 
     const file = req.files.file as fileUpload.UploadedFile;
@@ -34,7 +34,7 @@ export const uploadVideo = (req: Request, res: Response) => {
     const userId = req.user?.id;
 
     if (!userId) {
-        return res.status(400).json({ error: 'User ID not provided.' });
+        return res.status(400).json({ error: 'User ID not provided' });
     }
 
     createVideo({
@@ -51,12 +51,12 @@ export const uploadVideo = (req: Request, res: Response) => {
 
     file.mv(filePath, (err) => {
         if (err) {
-            return res.status(500).send(err);
+            return res.status(500).json(err);
         }
 
         const fileUrl = `${req.protocol}://${req.get('host')}/videos/${uniqueFileName}`;
     
-        res.status(201).header('Location', fileUrl).send({
+        res.status(201).header('Location', fileUrl).json({
             message: 'Video uploaded successfully!',
             location: fileUrl
         });
@@ -77,8 +77,8 @@ export const convertVideo = (req: Request, res: Response) => {
         .on('end', () => {
             const gifUrl = `${req.protocol}://${req.get('host')}/gifs/${gifId}.gif`;
 
-            res.status(201).header('Location', gifUrl).send({
-                message: 'Video successfully converted to GIF!',
+            res.status(201).header('Location', gifUrl).json({
+                message: 'Video successfully converted to GIF',
                 gifUrl
             });
         })
