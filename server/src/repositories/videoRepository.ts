@@ -1,5 +1,6 @@
 import { db } from '../db/connection';
-import { NewVideo, Video } from '../db/schema';
+import type { Database, NewVideo, Video } from '../db/schema';
+import type { Transaction } from 'kysely';
 
 export async function findVideos(userId: number): Promise<Video[]> {
     return await db.selectFrom('video')
@@ -8,8 +9,8 @@ export async function findVideos(userId: number): Promise<Video[]> {
     .execute();
 }
 
-export async function createVideo(video: NewVideo): Promise<Video> {
-    return await db.insertInto('video')
+export async function createVideo(trx: Transaction<Database>, video: NewVideo): Promise<Video> {
+    return await trx.insertInto('video')
     .values(video)
     .returningAll()
     .executeTakeFirstOrThrow();
