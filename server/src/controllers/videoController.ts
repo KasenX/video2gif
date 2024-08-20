@@ -11,7 +11,7 @@ export const checkVideoOwnership = async (req: Request, res: Response, next: Nex
     const userId = req.user?.id;
 
     if (!userId) {
-        return res.status(400).json({ error: 'User ID not provided' });
+        return res.status(400).json({ error: 'Failed to find the user' });
     }
 
     if (!validate(videoId)) {
@@ -38,15 +38,15 @@ export const getVideo = (req: Request, res: Response) => {
     const video = req.video;
 
     if (!video) {
-        return res.status(400).json({ error: 'Video not provided' });
+        return res.status(400).json({ error: 'Failed to find the video file' });
     }
 
     const videoPath = path.join(__dirname, '..', 'videos', `${video.id}${video.extension}`);
 
     res.sendFile(videoPath, (err) => {
         if (err) {
-            console.error('Error serving video file', err);
-            res.status(500).json({ error: 'Failed to serve video file' });
+            console.error('Error serving the video file', err);
+            res.status(500).json({ error: 'Failed to serve the video file' });
         }
     });
 }
@@ -56,7 +56,7 @@ export const getVideos = async (req: Request, res: Response) => {
         const userId = req.user?.id;
 
         if (!userId) {
-            return res.status(400).json({ error: 'User ID not provided' });
+            return res.status(400).json({ error: 'Failed to find the user' });
         }
 
         const videos = await findVideos(userId);
@@ -91,24 +91,24 @@ function moveVideoFile(file: fileUpload.UploadedFile, uniqueFileName: string): P
 export const uploadVideo = async (req: Request, res: Response) => {
     const file = validateFileUpload(req);
     if (!file) {
-        return res.status(400).json({ error: 'No video was uploaded' });
+        return res.status(400).json({ error: 'Failed to find the video file' });
     }
 
     const fileName = path.parse(file.name).name;
     const fileExtension = path.extname(file.name);
-    const uuid = uuidv4();
+    const videoId = uuidv4();
     const userId = req.user?.id;
 
     if (!userId) {
-        return res.status(400).json({ error: 'User ID not provided' });
+        return res.status(400).json({ error: 'Failed to find the user' });
     }
 
     try {
-        const uniqueFileName = `${uuid}${fileExtension}`;
+        const uniqueFileName = `${videoId}${fileExtension}`;
 
         await db.transaction().execute(async (trx) => {
             await createVideo(trx, {
-                id: uuid,
+                id: videoId,
                 user_id: userId,
                 name: fileName,
                 extension: fileExtension,
@@ -119,10 +119,10 @@ export const uploadVideo = async (req: Request, res: Response) => {
             await moveVideoFile(file, uniqueFileName);
         });
 
-        const fileUrl = `${req.protocol}://${req.get('host')}/videos/${uniqueFileName}`;
-        res.status(201).header('Location', fileUrl).json({
+        const videoUrl = `${req.protocol}://${req.get('host')}/videos/${videoId}`;
+        res.status(201).header('Location', videoUrl).json({
             message: 'Video uploaded successfully',
-            location: fileUrl,
+            location: videoUrl,
         });
     } catch (err) {
         console.error('Error during video upload:', err);
@@ -131,9 +131,14 @@ export const uploadVideo = async (req: Request, res: Response) => {
 };
 
 export const convertVideo = (req: Request, res: Response) => {
-    const videoName = req.params.videoName as string;
+    const video = req.video;
 
-    const videoPath = path.join(__dirname, '..', 'videos', videoName);
+    if (!video) {
+        return res.status(400).json({ error: 'Video not provided' });
+    }
+
+    const videoPath = path.join(__dirname, '..', 'videos', `${video.id}${video.extension}`);
+
     const gifId = uuidv4();
     const gifPath = path.join(__dirname, '..', 'gifs', `${gifId}.gif`);
 
@@ -142,11 +147,11 @@ export const convertVideo = (req: Request, res: Response) => {
             '-vf', 'fps=10,scale=320:-1:flags=lanczos', // Set frame rate and scale
         ])
         .on('end', () => {
-            const gifUrl = `${req.protocol}://${req.get('host')}/gifs/${gifId}.gif`;
+            const gifUrl = `${req.protocol}://${req.get('host')}/gifs/${gifId}`;
 
             res.status(201).header('Location', gifUrl).json({
                 message: 'Video successfully converted to GIF',
-                gifUrl
+                location: gifUrl
             });
         })
         .on('error', err => {

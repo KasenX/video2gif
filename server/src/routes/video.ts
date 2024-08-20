@@ -13,6 +13,6 @@ router.get('/', authenticateToken, getVideos);
 
 router.post('/', authenticateToken, uploadVideo);
 
-router.post('/:videoName/convert', authenticateToken, convertVideo);
+router.post('/:videoId/convert', authenticateToken, checkVideoOwnership, convertVideo);
 
 export default router;
