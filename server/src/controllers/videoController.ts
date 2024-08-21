@@ -8,6 +8,10 @@ import { db } from '../db/connection';
 import { createVideo, findVideo, findVideos } from '../repositories/videoRepository';
 import { createGif, updateGif } from '../repositories/gifRepository';
 
+const supportedVideoFormats = [
+    'mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'm4v', 'ogg'
+];
+
 export const checkVideoOwnership = async (req: Request, res: Response, next: NextFunction) => {
     const videoId = req.params.videoId as string;
     const userId = req.user?.id;
@@ -90,10 +94,18 @@ function moveVideoFile(file: fileUpload.UploadedFile, uniqueFileName: string): P
     });
 }
 
+function isVideoFormatSupported(file: fileUpload.UploadedFile): boolean {
+    const fileExtension = path.extname(file.name).slice(1);
+    return !supportedVideoFormats.includes(fileExtension);
+}
+
 export const uploadVideo = async (req: Request, res: Response) => {
     const file = validateFileUpload(req);
     if (!file) {
         return res.status(400).json({ error: 'Failed to find the video file' });
+    }
+    if (isVideoFormatSupported(file)) {
+        return res.status(400).json({ error: 'Unsupported video format' });
     }
 
     const fileName = path.parse(file.name).name;
