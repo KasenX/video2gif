@@ -176,7 +176,8 @@ const convertVideoToGif = (videoId: string, videoExtension: string, gifId: strin
     const videoPath = path.join(__dirname, '..', 'videos', `${videoId}${videoExtension}`);
     const gifPath = path.join(__dirname, '..', 'gifs', `${gifId}.gif`);
 
-    ffmpeg(videoPath)
+    try {
+        ffmpeg(videoPath)
         .outputOptions([
             '-vf', 'fps=10,scale=320:-1:flags=lanczos', // Set frame rate and scale
         ])
@@ -195,4 +196,7 @@ const convertVideoToGif = (videoId: string, videoExtension: string, gifId: strin
             console.error('Error during conversion', err);
         })
         .save(gifPath);
+    } catch (err) {
+        console.error('Unexpected error during conversion', err);
+    }
 };
