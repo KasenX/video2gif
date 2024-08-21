@@ -38,6 +38,14 @@ export const getGif = (req: Request, res: Response) => {
         return res.status(400).json({ error: 'Failed to find the gif file' });
     }
 
+    if (gif.status === 'in_progress') {
+        return res.status(202).json({ message: 'Gif is still being processed. Please check back later.' });
+    }
+
+    if (gif.status === 'failed') {
+        return res.status(410).json({ error: 'Gif processing failed. Please try initiating the processing again.' });
+    }
+
     const gifPath = path.join(__dirname, '..', 'gifs', `${gif.id}${gif.extension}`);
 
     res.sendFile(gifPath, (err) => {

@@ -2,10 +2,11 @@ import type { Request, Response, NextFunction } from 'express';
 import fileUpload from 'express-fileupload';
 import { v4 as uuidv4, validate } from 'uuid';
 import path from 'path';
+import fs from 'fs';
 import ffmpeg from 'fluent-ffmpeg';
 import { db } from '../db/connection';
 import { createVideo, findVideo, findVideos } from '../repositories/videoRepository';
-import { createGif } from '../repositories/gifRepository';
+import { createGif, updateGif } from '../repositories/gifRepository';
 
 export const checkVideoOwnership = async (req: Request, res: Response, next: NextFunction) => {
     const videoId = req.params.videoId as string;
@@ -138,9 +139,7 @@ export const convertVideo = async (req: Request, res: Response) => {
         return res.status(400).json({ error: 'Video not provided' });
     }
 
-    const videoPath = path.join(__dirname, '..', 'videos', `${video.id}${video.extension}`);
     const gifId = uuidv4();
-    const gifPath = path.join(__dirname, '..', 'gifs', `${gifId}.gif`);
     const userId = req.user?.id;
 
     if (!userId) {
@@ -148,36 +147,52 @@ export const convertVideo = async (req: Request, res: Response) => {
     }
 
     try {
-        await db.transaction().execute(async (trx) => {
-            await createGif(trx, {
-                id: gifId,
-                user_id: userId,
-                video_id: video.id,
-                name: video.name,
-                extension: '.gif',
-                size: -1,
-                created: new Date()
-            });
+        await createGif({
+            id: gifId,
+            user_id: userId,
+            video_id: video.id,
+            name: video.name,
+            extension: '.gif',
+            size: -1,
+            status: 'in_progress',
+            created: new Date(),
+            completed: null
+        });
 
-            ffmpeg(videoPath)
-                .outputOptions([
-                    '-vf', 'fps=10,scale=320:-1:flags=lanczos', // Set frame rate and scale
-                ])
-                .on('end', () => {
-                    const gifUrl = `${req.protocol}://${req.get('host')}/gifs/${gifId}`;
-
-                    res.status(201).header('Location', gifUrl).json({
-                        message: 'Video successfully converted to GIF',
-                        location: gifUrl
-                    });
-                })
-                .on('error', err => {
-                    throw err;
-                })
-                .save(gifPath);
+        const gifUrl = `${req.protocol}://${req.get('host')}/gifs/${gifId}`;
+        res.status(202).header('Location', gifUrl).json({
+            message: 'GIF conversion in progress',
+            location: gifUrl
         });
     } catch (err) {
-        console.error('Error during conversion:', err);
-        res.status(500).json({ error: 'Error during conversion' });
+        console.error('Error during conversion initiation', err);
+        res.status(500).json({ error: 'Error during conversion initiation' });
     }
-}
+
+    convertVideoToGif(video.id, video.extension, gifId);
+};
+
+const convertVideoToGif = (videoId: string, videoExtension: string, gifId: string) => {
+    const videoPath = path.join(__dirname, '..', 'videos', `${videoId}${videoExtension}`);
+    const gifPath = path.join(__dirname, '..', 'gifs', `${gifId}.gif`);
+
+    ffmpeg(videoPath)
+        .outputOptions([
+            '-vf', 'fps=10,scale=320:-1:flags=lanczos', // Set frame rate and scale
+        ])
+        .on('end', () => {
+            updateGif(gifId, {
+                size: fs.statSync(gifPath).size,
+                status: 'completed',
+                completed: new Date()
+            });
+        })
+        .on('error', (err) => {
+            updateGif(gifId, {
+                status: 'failed',
+                completed: new Date()
+            });
+            console.error('Error during conversion', err);
+        })
+        .save(gifPath);
+};

@@ -30,7 +30,9 @@ export interface GifTable {
     name: string,
     extension: string,
     size: number,
-    created: ColumnType<Date, Date, never>
+    status: 'in_progress' | 'completed' | 'failed',
+    created: ColumnType<Date, Date, never>,
+    completed: ColumnType<Date | null, null, Date>
 }
 
 export type Gif = Selectable<GifTable>;

@@ -1,6 +1,5 @@
 import { db } from '../db/connection';
-import type { Database, NewGif, Gif } from '../db/schema';
-import type { Transaction } from 'kysely';
+import type { NewGif, Gif, GifUpdate } from '../db/schema';
 
 export async function findGif(gifId: string, userId: number): Promise<Gif | undefined> {
     return await db.selectFrom('gif')
@@ -17,9 +16,17 @@ export async function findGifs(userId: number): Promise<Gif[]> {
     .execute();
 }
 
-export async function createGif(trx: Transaction<Database>, gif: NewGif): Promise<Gif> {
-    return await trx.insertInto('gif')
+export async function createGif(gif: NewGif): Promise<Gif> {
+    return await db.insertInto('gif')
     .values(gif)
+    .returningAll()
+    .executeTakeFirstOrThrow();
+}
+
+export async function updateGif(gifId: string, gif: Partial<GifUpdate>): Promise<Gif> {
+    return await db.updateTable('gif')
+    .set(gif)
+    .where('id', '=', gifId)
     .returningAll()
     .executeTakeFirstOrThrow();
 }
