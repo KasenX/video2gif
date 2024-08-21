@@ -7,7 +7,8 @@ import {
 
 export interface Database {
     video: VideoTable,
-    gif: GifTable
+    gif: GifTable,
+    preferences: PreferencesTable,
 }
 
 export interface VideoTable {
@@ -38,3 +39,15 @@ export interface GifTable {
 export type Gif = Selectable<GifTable>;
 export type NewGif = Insertable<GifTable>;
 export type GifUpdate = Updateable<GifTable>;
+
+export interface PreferencesTable {
+    user_id: number,
+    fps: number,
+    scale_x: number,
+    scale_y: number,
+    updated: ColumnType<Date, Date, Date>
+}
+
+export type Preferences = Selectable<PreferencesTable>;
+export type NewPreferences = Insertable<PreferencesTable>;
+export type PreferencesUpdate = Updateable<PreferencesTable>;

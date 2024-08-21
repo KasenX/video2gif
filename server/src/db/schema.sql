@@ -20,3 +20,11 @@ CREATE TABLE "gif" (
     "created" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "completed" TIMESTAMP
 );
+
+CREATE TABLE "preferences" (
+    "user_id" INTEGER PRIMARY KEY,
+    "fps" INTEGER NOT NULL,
+    "scale_x" INTEGER NOT NULL,
+    "scale_y" INTEGER NOT NULL,
+    "updated" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
