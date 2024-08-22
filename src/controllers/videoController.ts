@@ -159,6 +159,46 @@ async function resolveSettings(body: VideoConversionBody, userId: number): Promi
     return settings;
 }
 
+function getVideoDuration(videoPath: string): Promise<number | undefined> {
+    return new Promise((resolve, reject) => {
+        ffmpeg.ffprobe(videoPath, (err, metadata) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(metadata.format.duration);
+        });
+    });
+}
+
+function validateSettings(settings: VideoConversionBody, videoDuration: number): boolean {
+    if (typeof settings.fps !== 'number' || settings.fps <= 0) {
+        return false;
+    }
+
+    if (typeof settings.scale_x !== 'number' || (settings.scale_x <= 0 && settings.scale_x !== -1)) {
+        return false;
+    }
+
+    if (typeof settings.scale_y !== 'number' || (settings.scale_y <= 0 && settings.scale_y !== -1)) {
+        return false;
+    }
+
+    if (typeof settings.startTime !== 'number' || settings.startTime < 0) {
+        return false;
+    }
+
+    if (settings.duration !== undefined && (typeof settings.duration !== 'number' || settings.duration <= 0)) {
+        return false;
+    }
+
+    const endTime = settings.startTime + (settings.duration || videoDuration);
+    if (endTime > videoDuration) {
+        return false;
+    }
+
+    return true;
+}
+
 export const convertVideo = async (req: Request, res: Response) => {
     const body = req.body as VideoConversionBody;
     const video = req.video;
@@ -175,8 +215,15 @@ export const convertVideo = async (req: Request, res: Response) => {
     }
 
     const settings = await resolveSettings(body, userId);
+    const videoPath = path.join(__dirname, '..', 'videos', `${video.id}${video.extension}`);
 
     try {
+        const videoDuration = await getVideoDuration(videoPath);
+
+        if (!validateSettings(settings, videoDuration!)) {
+            return res.status(400).json({ error: 'Invalid conversion settings' });
+        }
+
         await createGif({
             id: gifId,
             user_id: userId,
@@ -199,11 +246,10 @@ export const convertVideo = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Error during conversion initiation' });
     }
 
-    convertVideoToGif(video.id, video.extension, gifId, settings);
+    convertVideoToGif(videoPath, gifId, settings);
 };
 
-const convertVideoToGif = (videoId: string, videoExtension: string, gifId: string, settings: VideoConversionBody) => {
-    const videoPath = path.join(__dirname, '..', 'videos', `${videoId}${videoExtension}`);
+const convertVideoToGif = (videoPath: string, gifId: string, settings: VideoConversionBody) => {
     const gifPath = path.join(__dirname, '..', 'gifs', `${gifId}.gif`);
 
     try {
