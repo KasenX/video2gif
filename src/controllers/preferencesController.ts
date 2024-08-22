@@ -12,7 +12,7 @@ export const getPreferences = async (req: Request, res: Response) => {
 
     // Should not happen - every user should have preferences in the DB
     if (!preferences) {
-        console.log('Preferences do not exist for user:', user.id);
+        console.error('Preferences do not exist for user:', user.id);
         return res.status(500).json({ error: 'An unexpected error occured while trying to get user\'s preferences.' });
     }
 
