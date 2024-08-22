@@ -14,4 +14,6 @@ export interface VideoConversionBody {
     fps?: number;
     scale_x?: number;
     scale_y?: number;
+    startTime?: number;
+    duration?: number;
 }

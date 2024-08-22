@@ -153,6 +153,8 @@ async function resolveSettings(body: VideoConversionBody, userId: number): Promi
     settings.fps = body.fps || preferences?.fps || 10;
     settings.scale_x = body.scale_x || preferences?.scale_x || 320;
     settings.scale_y = body.scale_y || preferences?.scale_y || -1;
+    settings.startTime = body.startTime || 0;
+    settings.duration = body.duration;
 
     return settings;
 }
@@ -205,15 +207,22 @@ const convertVideoToGif = (videoId: string, videoExtension: string, gifId: strin
     const gifPath = path.join(__dirname, '..', 'gifs', `${gifId}.gif`);
 
     try {
-        ffmpeg(videoPath)
+        const ffmpegCommmand = ffmpeg(videoPath)
+        .setStartTime(settings.startTime!)
         .outputOptions([
-            '-vf', `fps=${settings.fps},scale=${settings.scale_x}:${settings.scale_y}:flags=lanczos`, // Set frame rate and scale
-        ])
+            '-vf', `fps=${settings.fps},scale=${settings.scale_x}:${settings.scale_y}:flags=lanczos`
+        ]);
+
+        if (settings.duration) {
+            ffmpegCommmand.duration(settings.duration);
+        }
+
+        ffmpegCommmand
         .on('end', () => {
             updateGif(gifId, {
                 size: fs.statSync(gifPath).size,
                 status: 'completed',
-                completed: new Date()
+                completed: new Date(),
             });
         })
         .on('error', (err) => {
