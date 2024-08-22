@@ -31,3 +31,21 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 
     return next();
 };
+
+export const authenticateCookie = (req: Request, res: Response, next: NextFunction) => {
+    const token = req.cookies.token;
+
+    if (!token) {
+        return res.status(401).json({ error: 'Cookie auth token missing' });
+    }
+
+    const decoded = authenticateTokenService(token);
+
+    if (!decoded) {
+        return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    req.user = decoded.user;
+
+    return next();
+}

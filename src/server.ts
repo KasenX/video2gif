@@ -1,4 +1,5 @@
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth';
 import videoRoutes from './routes/video';
 import gifRoutes from './routes/gif';
@@ -9,6 +10,7 @@ const app = express();
 const port = 3000;
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/auth', authRoutes);
