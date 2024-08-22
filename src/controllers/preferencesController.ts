@@ -1,10 +1,6 @@
 import type { Request, Response } from 'express';
 import { findPreferences, updatePreferences as updatePreferencesDB } from '../repositories/preferencesRepository';
 
-export const getUserPreferences = async (user_id: number) => {
-    return await findPreferences(user_id);
-}
-
 export const getPreferences = async (req: Request, res: Response) => {
     const user = req.user;
 
@@ -12,7 +8,7 @@ export const getPreferences = async (req: Request, res: Response) => {
         return res.status(400).json({ error: 'Failed to find the user' });
     }
 
-    const preferences = await getUserPreferences(user.id);
+    const preferences = await findPreferences(user.id);
 
     // Should not happen - every user should have preferences in the DB
     if (!preferences) {

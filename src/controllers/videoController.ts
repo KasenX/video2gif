@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
+import type { VideoConversionBody } from '../../types/types';
 import fileUpload from 'express-fileupload';
 import { v4 as uuidv4, validate } from 'uuid';
 import path from 'path';
@@ -7,6 +8,7 @@ import ffmpeg from 'fluent-ffmpeg';
 import { db } from '../db/connection';
 import { createVideo, findVideo, findVideos } from '../repositories/videoRepository';
 import { createGif, updateGif } from '../repositories/gifRepository';
+import { findPreferences } from '../repositories/preferencesRepository';
 
 const supportedVideoFormats = [
     'mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'm4v', 'ogg'
@@ -144,7 +146,19 @@ export const uploadVideo = async (req: Request, res: Response) => {
     }
 };
 
+async function resolveSettings(body: VideoConversionBody, userId: number): Promise<VideoConversionBody> {
+    const preferences = await findPreferences(userId);
+    const settings: VideoConversionBody = {};
+
+    settings.fps = body.fps || preferences?.fps || 10;
+    settings.scale_x = body.scale_x || preferences?.scale_x || 320;
+    settings.scale_y = body.scale_y || preferences?.scale_y || -1;
+
+    return settings;
+}
+
 export const convertVideo = async (req: Request, res: Response) => {
+    const body = req.body as VideoConversionBody;
     const video = req.video;
 
     if (!video) {
@@ -157,6 +171,8 @@ export const convertVideo = async (req: Request, res: Response) => {
     if (!userId) {
         return res.status(400).json({ error: 'Failed to find the user' });
     }
+
+    const settings = await resolveSettings(body, userId);
 
     try {
         await createGif({
@@ -181,17 +197,17 @@ export const convertVideo = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Error during conversion initiation' });
     }
 
-    convertVideoToGif(video.id, video.extension, gifId);
+    convertVideoToGif(video.id, video.extension, gifId, settings);
 };
 
-const convertVideoToGif = (videoId: string, videoExtension: string, gifId: string) => {
+const convertVideoToGif = (videoId: string, videoExtension: string, gifId: string, settings: VideoConversionBody) => {
     const videoPath = path.join(__dirname, '..', 'videos', `${videoId}${videoExtension}`);
     const gifPath = path.join(__dirname, '..', 'gifs', `${gifId}.gif`);
 
     try {
         ffmpeg(videoPath)
         .outputOptions([
-            '-vf', 'fps=10,scale=320:-1:flags=lanczos', // Set frame rate and scale
+            '-vf', `fps=${settings.fps},scale=${settings.scale_x}:${settings.scale_y}:flags=lanczos`, // Set frame rate and scale
         ])
         .on('end', () => {
             updateGif(gifId, {
