@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import type { JWTUserPayload } from '../../types/types';
+import type { JWTUserPayload } from '../types/types';
 import jwt from 'jsonwebtoken';
 
 const secretKey = 'your_secret_key'; // TODO: env variable

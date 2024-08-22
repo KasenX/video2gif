@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import type { VideoConversionBody } from '../../types/types';
+import type { VideoConversionBody } from '../types/types';
 import fileUpload from 'express-fileupload';
 import { v4 as uuidv4, validate } from 'uuid';
 import path from 'path';

@@ -1,4 +1,4 @@
-import { Video, Gif } from '../../src/db/schema';
+import { Video, Gif } from '../../db/schema';
 import { User } from '../types';
 
 declare module 'express-serve-static-core' {
