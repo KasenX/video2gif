@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "main": "dist/server.js",
   "scripts": {
-    "start": "node dist/server.js",
+    "start": "node dist/src/server.js",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc && npm run copy-public",
+    "build": "tsc && npm run copy-public && npm run tailwind && npm run create-dirs",
     "copy-public": "cp -r ./public ./dist",
+    "tailwind": "npx tailwindcss -i public/style.css -o dist/public/style.css",
+    "create-dirs": "mkdir dist/videos dist/gifs",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -42,6 +44,7 @@
     "@types/pg": "^8.11.6",
     "@types/uuid": "^10.0.0",
     "globals": "^15.9.0",
+    "tailwindcss": "^3.4.10",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.5.4"
   }

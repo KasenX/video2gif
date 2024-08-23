@@ -46,7 +46,7 @@ export const getGif = (req: Request, res: Response) => {
         return res.status(410).json({ error: 'Gif processing failed. Please try initiating the processing again.' });
     }
 
-    const gifPath = path.join(__dirname, '..', 'gifs', `${gif.id}${gif.extension}`);
+    const gifPath = path.join(__dirname, '..', '..', 'gifs', `${gif.id}${gif.extension}`);
 
     res.sendFile(gifPath, (err) => {
         if (err) {

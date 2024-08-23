@@ -9,9 +9,6 @@ export const loginGet = (req: Request, res: Response) => {
 export const loginPost = (req: Request, res: Response) => {
    const { email, password } = req.body;
 
-   console.log(req.body);
-   console.log(email, password);
-
    const token = generateAccessToken(email, password);
 
    if (!token) {

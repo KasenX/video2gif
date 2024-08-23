@@ -49,7 +49,7 @@ export const getVideo = (req: Request, res: Response) => {
         return res.status(400).json({ error: 'Failed to find the video file' });
     }
 
-    const videoPath = path.join(__dirname, '..', 'videos', `${video.id}${video.extension}`);
+    const videoPath = path.join(__dirname, '..', '..', 'videos', `${video.id}${video.extension}`);
 
     res.sendFile(videoPath, (err) => {
         if (err) {
@@ -84,7 +84,7 @@ function validateFileUpload(req: Request): fileUpload.UploadedFile | null {
 }
 
 function moveVideoFile(file: fileUpload.UploadedFile, uniqueFileName: string): Promise<void> {
-    const filePath = path.join(__dirname, '..', 'videos', uniqueFileName);
+    const filePath = path.join(__dirname, '..', '..', 'videos', uniqueFileName);
     
     return new Promise((resolve, reject) => {
         file.mv(filePath, (err) => {
@@ -215,7 +215,7 @@ export const convertVideo = async (req: Request, res: Response) => {
     }
 
     const settings = await resolveSettings(body, userId);
-    const videoPath = path.join(__dirname, '..', 'videos', `${video.id}${video.extension}`);
+    const videoPath = path.join(__dirname, '..', '..', 'videos', `${video.id}${video.extension}`);
 
     try {
         const videoDuration = await getVideoDuration(videoPath);
@@ -250,7 +250,7 @@ export const convertVideo = async (req: Request, res: Response) => {
 };
 
 const convertVideoToGif = (videoPath: string, gifId: string, settings: VideoConversionBody) => {
-    const gifPath = path.join(__dirname, '..', 'gifs', `${gifId}.gif`);
+    const gifPath = path.join(__dirname, '..', '..', 'gifs', `${gifId}.gif`);
 
     try {
         const ffmpegCommmand = ffmpeg(videoPath)

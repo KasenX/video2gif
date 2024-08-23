@@ -3,7 +3,7 @@
         "target": "ES2020",                          // Target JavaScript version
         "lib": ["ES2020"],                           // Include standard library declarations
         "module": "NodeNext",                        // Module system
-        "outDir": "dist",                            // Output directory for compiled files
+        "outDir": "dist/src",                        // Output directory for compiled files
         "rootDir": "src",                            // Root directory of input files
         "strict": true,                              // Enable all strict type-checking options
         "noUncheckedIndexedAccess": true,            // Prevents you from accessing an array or object without first checking if it's defined. This is a great way to prevent runtime errors, and should really be included in strict.
