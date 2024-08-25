@@ -9,6 +9,8 @@ import webClientRoutes from './routes/webClient';
 const app = express();
 const port = 3000;
 
+app.set('view engine', 'ejs');
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));

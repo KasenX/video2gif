@@ -3,7 +3,7 @@ import path from 'path';
 import { generateAccessToken } from '../services/authService';
 
 export const loginGet = (req: Request, res: Response) => {
-   res.sendFile(path.join(__dirname, "../../public/login.html"));
+   res.render("login");
 }
 
 export const loginPost = (req: Request, res: Response) => {
@@ -29,5 +29,5 @@ export const logout = (req: Request, res: Response) => {
 }
 
 export const home = (req: Request, res: Response) => {
-   res.sendFile(path.join(__dirname, "../../public/index.html"));
+   res.render("home");
 }

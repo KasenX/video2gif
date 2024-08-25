@@ -25,12 +25,12 @@
     },
     "include": [
         "src/**/*.ts",
-        "src/types/**/*.d.ts",
-        "public/**/*"
+        "src/types/**/*.d.ts"
     ],
     "exclude": [
         "node_modules",
-        "dist"
+        "dist",
+        "views"
     ]
 }
   
