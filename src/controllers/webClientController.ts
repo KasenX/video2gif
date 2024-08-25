@@ -28,8 +28,25 @@ export const logout = (req: Request, res: Response) => {
    res.redirect("/login");
 }
 
-export const home = (req: Request, res: Response) => {
-   res.render("home");
+export const home = async (req: Request, res: Response) => {
+   if (!req.user) {
+      return res.sendStatus(500);
+   }
+
+   const preferences = await findPreferences(req.user.id);
+
+   if (!preferences) {
+      return res.sendStatus(500);
+   }
+
+   res.render("home", {
+      email: req.user.email,
+      fps: preferences.fps,
+      scale_x: preferences.scale_x === -1 ? "Auto" : preferences.scale_x,
+      scale_y: preferences.scale_y === -1 ? "Auto" : preferences.scale_y,
+      startTime: 0,
+      duration: ""
+   });
 }
 
 export const profileGet = async (req: Request, res: Response) => {
