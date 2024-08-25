@@ -55,15 +55,18 @@
           <div>
             <label for="fps" class="block text-sm font-medium text-gray-700">FPS</label>
             <input type="text" id="fps" name="fps" value="<%= fps %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="e.g. 30">
+            <p id="fps-error" class="text-red-500 text-sm mt-1 hidden">Invalid Scale FPS value. Please enter a positive integer.</p>
           </div>
           <div class="flex space-x-4">
             <div class="w-1/2">
               <label for="scale-x" class="block text-sm font-medium text-gray-700">Scale X</label>
               <input type="text" id="scale-x" name="scale_x" value="<%= scale_x %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="e.g. 320 or Auto">
+              <p id="scale-x-error" class="text-red-500 text-sm mt-1 hidden">Invalid Scale X value. Please enter a positive integer or "Auto".</p>
             </div>
             <div class="w-1/2">
               <label for="scale-y" class="block text-sm font-medium text-gray-700">Scale Y</label>
               <input type="text" id="scale-y" name="scale_y" value="<%= scale_y %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="e.g. 240 or Auto">
+              <p id="scale-y-error" class="text-red-500 text-sm mt-1 hidden">Invalid Scale Y value. Please enter a positive integer or "Auto".</p>
             </div>
           </div>
           <div class="flex space-x-4">
@@ -76,14 +79,16 @@
               <input type="text" id="duration" name="duration" value="<%= duration %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
             </div>
           </div>
-          <button id="convert-btn" type="submit" class="w-full bg-purple-600 text-white py-2 px-4 rounded-md shadow-md hover:bg-purple-700 transition duration-300">Convert</button>
+          <p id="start-time-and-duration-error" class="text-red-500 text-sm mt-1 hidden">Invalid Start Time and Duration combination in relation to the video duration.</p>
+          <button id="convert-btn" type="submit" class="w-full bg-purple-600 text-white py-2 px-4 rounded-md shadow-md hover:bg-purple-700 transition duration-300 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500">Convert</button>
         </form>
         <div class="mt-6">
-          <button class="w-full bg-green-600 text-white py-2 px-4 rounded-md shadow-md hover:bg-green-700 transition duration-300">Download GIF</button>
+          <button class="w-full bg-green-600 text-white py-2 px-4 rounded-md shadow-md hover:bg-green-700 transition duration-300 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500">Download GIF</button>
         </div>
       </div>
     </div>
   </main>
+  <script src="main.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const fileInput = document.getElementById('file-input');
@@ -94,8 +99,13 @@
       const fpsInput = document.getElementById('fps');
       const scaleXInput = document.getElementById('scale-x');
       const scaleYInput = document.getElementById('scale-y');
-      const startTimeInput = document.getElementById('startTime');
+      const startTimeInput = document.getElementById('start-time');
       const durationInput = document.getElementById('duration');
+
+      const fpsError = document.getElementById('fps-error');
+      const scaleXError = document.getElementById('scale-x-error');
+      const scaleYError = document.getElementById('scale-y-error');
+      const startTimeAndDurationError = document.getElementById('start-time-and-duration-error');
 
       let videoDuration = 0;
 
@@ -136,7 +146,7 @@
         const response = await fetch('/api/videos', {
             method: 'POST',
             headers: {
-              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJwYXNzd29yZCI6InBhc3N3b3JkMTIzIn0sImlhdCI6MTcyNDU0ODMxOSwiZXhwIjoxNzI0NTUxOTE5fQ.u5iyiaf9unrsDnk8FBL473Tk20Ip3W6ThrrwUaAGqlw'
+              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoyLCJlbWFpbCI6Imt1YmEucm9uZUBnbWFpbC5jb20iLCJwYXNzd29yZCI6IjEyMzQ1In0sImlhdCI6MTcyNDU3MjY0NiwiZXhwIjoxNzI0NTc2MjQ2fQ.OD4vO5IfCgWN3Q4hWj6Kz26kLSX7nUyAEpkKfsXEVuE'
             },
             body: formData
           });
@@ -144,51 +154,43 @@
         if (response.ok) {
           const videoUrl = URL.createObjectURL(file);
 
-          // Replace the form with the uploaded video preview
-          uploadContainer.innerHTML = `
-            <video controls class="w-full h-auto rounded-lg">
-              <source src="${videoUrl}" type="${file.type}">
-              Your browser does not support the video tag.
-            </video>
-          `;
+          const video = document.createElement('video');
+          video.src = videoUrl;
+          video.addEventListener('loadedmetadata', function() {
+            videoDuration = video.duration;
+            validateForm();
+
+            // Replace the form with the uploaded video preview and duration info
+            uploadContainer.innerHTML = `
+              <video controls class="w-full h-auto rounded-lg">
+                <source src="${videoUrl}" type="${file.type}">
+                Your browser does not support the video tag.
+              </video>
+            `;
+          });
         } else {
           alert('Failed to upload video. Please try again.');
         }
       }
+
+      function validateForm() {
+        const isFpsValid = validateFps(fpsInput.value);
+        const isScaleXValid = validateScale(scaleXInput.value);
+        const isScaleYValid = validateScale(scaleYInput.value);
+        const isValidStartTimeAndDuration = fileInput.files.length == 0 || validateStartTimeAndDuration(startTimeInput.value, durationInput.value, videoDuration);
+        
+        fpsError.classList.toggle('hidden', isFpsValid);
+        scaleXError.classList.toggle('hidden', isScaleXValid);
+        scaleYError.classList.toggle('hidden', isScaleYValid);
+        startTimeAndDurationError.classList.toggle('hidden', isValidStartTimeAndDuration);
+
+        const isFormValid = fileInput.files.length > 0 && isFpsValid && isScaleXValid && isScaleYValid && isValidStartTimeAndDuration;
+
+        convertButton.disabled = !isFormValid;
+      }
+
+      validateForm();
     });
-
-    function isValidPositiveInteger(value) {
-      return /^[1-9]\d*$/.test(value);
-    }
-
-    function isValidPositiveDecimal(value) {
-      return /^([0-9]*[.])?[0-9]+$/.test(value) && parseFloat(value) > 0;
-    }
-
-    function validateForm() {
-      const fps = parseInt(fpsInput.value);
-      const scaleX = scaleXInput.value;
-      const scaleY = scaleYInput.value;
-      const startTime = parseFloat(startTimeInput.value);
-      const duration = parseFloat(durationInput.value);
-
-      // Validate FPS (positive integer)
-      const isFpsValid = !isNaN(fps) && fps > 0;
-
-      // Validate Scale X and Scale Y (positive integer or "Auto")
-      const isScaleXValid = (scaleX.toUpperCase() === "AUTO" || (!isNaN(parseInt(scaleX)) && parseInt(scaleX) > 0));
-      const isScaleYValid = (scaleY.toUpperCase() === "AUTO" || (!isNaN(parseInt(scaleY)) && parseInt(scaleY) > 0));
-
-      // Validate Start Time and Duration (positive decimal and within bounds)
-      const isStartTimeValid = !isNaN(startTime) && startTime >= 0;
-      const isDurationValid = !isNaN(duration) && duration > 0;
-      const isWithinVideoBounds = (startTime + duration) <= videoDuration;
-
-      // Enable the Convert button only if all conditions are met
-      const isFormValid = fileInput.files.length > 0 && isFpsValid && isScaleXValid && isScaleYValid && isStartTimeValid && isDurationValid && isWithinVideoBounds;
-
-      convertButton.disabled = !isFormValid; // Disable or enable the convert button
-    }
   </script>
 </body>
 </html>
