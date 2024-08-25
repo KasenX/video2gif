@@ -1,18 +1,194 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-    <h1 class="text-3xl font-bold underline">
-      Hello world!
-    </h1>
-    <form action="/logout" method="post">
-      <button type="submit">Logout</button>
-    </form>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-      <input type="file" name="uploadFile" />
-      <input type="submit" value="Upload!" />
-    </form>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Video - Video to GIF Converter</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 min-h-screen">
+  <header class="bg-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-2">
+        <h1 class="text-xl font-bold text-gray-800">
+          <a href="/">Video to GIF Converter</a>
+        </h1>
+        <div class="flex">
+          <a href="/profile" class="text-gray-700 hover:text-indigo-500 transition duration-300 flex items-center justify-between">
+            <span class="text-sm font-semibold">Profile</span>
+            <!-- https://www.svgrepo.com/svg/487692/profile -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-6 w-6" fill="currentColor">
+              <path d="M12,11A5,5,0,1,0,7,6,5.006,5.006,0,0,0,12,11Zm0-8A3,3,0,1,1,9,6,3,3,0,0,1,12,3ZM3,22V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v4a1,1,0,0,1-2,0V18a3,3,0,0,0-3-3H8a3,3,0,0,0-3,3v4a1,1,0,0,1-2,0Z"/>
+            </svg>
+          </a>
+          <a href="/logout" class="text-gray-700 hover:text-red-500 transition duration-300 flex items-center justify-between ml-3">
+            <span class="text-sm font-semibold">Logout</span>
+            <!-- https://www.svgrepo.com/svg/520828/logout -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -0.5 24 24" class="h-8 w-8" fill="currentColor">
+              <path d="M11.75 9.874C11.75 10.2882 12.0858 10.624 12.5 10.624C12.9142 10.624 13.25 10.2882 13.25 9.874H11.75ZM13.25 4C13.25 3.58579 12.9142 3.25 12.5 3.25C12.0858 3.25 11.75 3.58579 11.75 4H13.25ZM9.81082 6.66156C10.1878 6.48991 10.3542 6.04515 10.1826 5.66818C10.0109 5.29121 9.56615 5.12478 9.18918 5.29644L9.81082 6.66156ZM5.5 12.16L4.7499 12.1561L4.75005 12.1687L5.5 12.16ZM12.5 19L12.5086 18.25C12.5029 18.25 12.4971 18.25 12.4914 18.25L12.5 19ZM19.5 12.16L20.2501 12.1687L20.25 12.1561L19.5 12.16ZM15.8108 5.29644C15.4338 5.12478 14.9891 5.29121 14.8174 5.66818C14.6458 6.04515 14.8122 6.48991 15.1892 6.66156L15.8108 5.29644ZM13.25 9.874V4H11.75V9.874H13.25ZM9.18918 5.29644C6.49843 6.52171 4.7655 9.19951 4.75001 12.1561L6.24999 12.1639C6.26242 9.79237 7.65246 7.6444 9.81082 6.66156L9.18918 5.29644ZM4.75005 12.1687C4.79935 16.4046 8.27278 19.7986 12.5086 19.75L12.4914 18.25C9.08384 18.2892 6.28961 15.5588 6.24995 12.1513L4.75005 12.1687ZM12.4914 19.75C16.7272 19.7986 20.2007 16.4046 20.2499 12.1687L18.7501 12.1513C18.7104 15.5588 15.9162 18.2892 12.5086 18.25L12.4914 19.75ZM20.25 12.1561C20.2345 9.19951 18.5016 6.52171 15.8108 5.29644L15.1892 6.66156C17.3475 7.6444 18.7376 9.79237 18.75 12.1639L20.25 12.1561Z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main class="flex justify-center items-start mt-16">
+    <div class="flex space-x-6">
+      <!-- Upload Container -->
+      <div class="w-full max-w-lg p-10 bg-white rounded-lg shadow-lg" id="upload-container">
+        <form id="upload-form" class="border-4 border-dashed border-gray-300 p-10 text-center rounded-lg hover:cursor-pointer" ondrop="handleDrop(event)" ondragover="event.preventDefault()">
+          <div class="flex justify-center items-center mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1920" class="h-16 w-16 text-purple-600" fill="currentColor">
+              <path d="M960 293.333v160H186.667C171.939 453.333 160 465.272 160 480v1253.33c0 14.73 11.939 26.67 26.667 26.67H1440c14.73 0 26.67-11.94 26.67-26.67V960h160v773.33c0 103.1-83.58 186.67-186.67 186.67H186.667C83.573 1920 0 1836.43 0 1733.33V480c0-103.093 83.573-186.667 186.667-186.667H960ZM586.667 800 1120 1120l-533.333 320V800ZM1626.67 0v293.333H1920v160h-293.33v293.334h-160V453.333h-293.34v-160h293.34V0h160Z" fill-rule="evenodd"/>
+            </svg>
+          </div>
+          <h2 class="text-lg font-semibold text-gray-700 mb-2">Drag and drop a video or <span class="text-purple-600 hover:underline">browse</span></h2>
+          <p class="text-sm text-gray-500 mb-6">File size can be up to 1 GB</p>
+          <input type="file" id="file-input" accept="video/*" class="hidden">
+        </form>
+      </div>
+
+      <!-- Conversion Options -->
+      <div class="w-full max-w-lg p-10 bg-white rounded-lg shadow-lg">
+        <h2 class="text-lg font-bold text-gray-700 mb-4">Conversion Options</h2>
+        <form id="convert-options" class="space-y-4">
+          <div>
+            <label for="fps" class="block text-sm font-medium text-gray-700">FPS</label>
+            <input type="text" id="fps" name="fps" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="e.g. 30">
+          </div>
+          <div class="flex space-x-4">
+            <div class="w-1/2">
+              <label for="scale-x" class="block text-sm font-medium text-gray-700">Scale X</label>
+              <input type="text" id="scale-x" name="scale_x" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="e.g. 320 or Auto">
+            </div>
+            <div class="w-1/2">
+              <label for="scale-y" class="block text-sm font-medium text-gray-700">Scale Y</label>
+              <input type="text" id="scale-y" name="scale_y" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="e.g. 240 or Auto">
+            </div>
+          </div>
+          <div class="flex space-x-4">
+            <div class="w-1/2">
+              <label for="start-time" class="block text-sm font-medium text-gray-700">Start Time (s)</label>
+              <input type="text" id="start-time" name="start_time" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="e.g. 5">
+            </div>
+            <div class="w-1/2">
+              <label for="duration" class="block text-sm font-medium text-gray-700">Duration (s)</label>
+              <input type="text" id="duration" name="duration" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="e.g. 10">
+            </div>
+          </div>
+          <button id="convert-btn" type="submit" class="w-full bg-purple-600 text-white py-2 px-4 rounded-md shadow-md hover:bg-purple-700 transition duration-300">Convert</button>
+        </form>
+        <div class="mt-6">
+          <button class="w-full bg-green-600 text-white py-2 px-4 rounded-md shadow-md hover:bg-green-700 transition duration-300">Download GIF</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const fileInput = document.getElementById('file-input');
+      const uploadForm = document.getElementById('upload-form');
+      const uploadContainer = document.getElementById('upload-container');
+      const convertButton = document.getElementById('convert-btn');
+
+      const fpsInput = document.getElementById('fps');
+      const scaleXInput = document.getElementById('scale-x');
+      const scaleYInput = document.getElementById('scale-y');
+      const startTimeInput = document.getElementById('startTime');
+      const durationInput = document.getElementById('duration');
+
+      let videoDuration = 0;
+
+      fileInput.addEventListener('change', handleFileSelect);
+      fpsInput.addEventListener('input', validateForm);
+      scaleXInput.addEventListener('input', validateForm);
+      scaleYInput.addEventListener('input', validateForm);
+      startTimeInput.addEventListener('input', validateForm);
+      durationInput.addEventListener('input', validateForm);
+
+      uploadForm.addEventListener('click', () => {
+        fileInput.click();
+      });
+
+      fileInput.addEventListener('change', handleFileSelect);
+
+      window.handleDrop = (event) => {
+        event.preventDefault();
+        const files = event.dataTransfer.files;
+        if (files.length > 0) {
+          processFile(files[0]);
+        }
+      };
+
+      function handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (file) {
+          processFile(file);
+        }
+      }
+
+      // Process the file (upload + replace with video preview)
+      async function processFile(file) {
+        // Create FormData to hold the file data
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/api/videos', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJwYXNzd29yZCI6InBhc3N3b3JkMTIzIn0sImlhdCI6MTcyNDU0ODMxOSwiZXhwIjoxNzI0NTUxOTE5fQ.u5iyiaf9unrsDnk8FBL473Tk20Ip3W6ThrrwUaAGqlw'
+            },
+            body: formData
+          });
+
+        if (response.ok) {
+          const videoUrl = URL.createObjectURL(file);
+
+          // Replace the form with the uploaded video preview
+          uploadContainer.innerHTML = `
+            <video controls class="w-full h-auto rounded-lg">
+              <source src="${videoUrl}" type="${file.type}">
+              Your browser does not support the video tag.
+            </video>
+          `;
+        } else {
+          alert('Failed to upload video. Please try again.');
+        }
+      }
+    });
+
+    function isValidPositiveInteger(value) {
+      return /^[1-9]\d*$/.test(value);
+    }
+
+    function isValidPositiveDecimal(value) {
+      return /^([0-9]*[.])?[0-9]+$/.test(value) && parseFloat(value) > 0;
+    }
+
+    function validateForm() {
+      const fps = parseInt(fpsInput.value);
+      const scaleX = scaleXInput.value;
+      const scaleY = scaleYInput.value;
+      const startTime = parseFloat(startTimeInput.value);
+      const duration = parseFloat(durationInput.value);
+
+      // Validate FPS (positive integer)
+      const isFpsValid = !isNaN(fps) && fps > 0;
+
+      // Validate Scale X and Scale Y (positive integer or "Auto")
+      const isScaleXValid = (scaleX.toUpperCase() === "AUTO" || (!isNaN(parseInt(scaleX)) && parseInt(scaleX) > 0));
+      const isScaleYValid = (scaleY.toUpperCase() === "AUTO" || (!isNaN(parseInt(scaleY)) && parseInt(scaleY) > 0));
+
+      // Validate Start Time and Duration (positive decimal and within bounds)
+      const isStartTimeValid = !isNaN(startTime) && startTime >= 0;
+      const isDurationValid = !isNaN(duration) && duration > 0;
+      const isWithinVideoBounds = (startTime + duration) <= videoDuration;
+
+      // Enable the Convert button only if all conditions are met
+      const isFormValid = fileInput.files.length > 0 && isFpsValid && isScaleXValid && isScaleYValid && isStartTimeValid && isDurationValid && isWithinVideoBounds;
+
+      convertButton.disabled = !isFormValid; // Disable or enable the convert button
+    }
+  </script>
+</body>
 </html>
