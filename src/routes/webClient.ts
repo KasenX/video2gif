@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get('/login', loginGet);
 router.post('/login', loginPost);
-router.post('/logout', authenticateCookie, logout);
+router.get('/logout', authenticateCookie, logout);
 router.get('/', authenticateCookie, home);
 
 router.use("/", express.static(path.join(__dirname, "../../public")));
