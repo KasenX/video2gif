@@ -107,6 +107,7 @@
       const scaleYError = document.getElementById('scale-y-error');
       const startTimeAndDurationError = document.getElementById('start-time-and-duration-error');
 
+      let videoId = null;
       let videoDuration = 0;
 
       fileInput.addEventListener('change', handleFileSelect);
@@ -152,6 +153,8 @@
           });
 
         if (response.ok) {
+          const data = await response.json();
+          videoId = data.videoId;
           const videoUrl = URL.createObjectURL(file);
 
           const video = document.createElement('video');
@@ -190,6 +193,64 @@
       }
 
       validateForm();
+
+      convertButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        convertVideoToGif(videoId, fpsInput.value, scaleXInput.value, scaleYInput.value, startTimeInput.value, durationInput.value);
+      });
+
+      async function convertVideoToGif(videoId, fps, scaleX, scaleY, startTime, duration) {
+        const response = await fetch(`/api/videos/${videoId}/convert`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer <%= cookie %>"
+          },
+          body: JSON.stringify({
+            fps: parseInt(fps),
+            scale_x: scaleX === 'Auto' ? -1 : parseInt(scaleX),
+            scale_y: scaleY === 'Auto' ? -1 : parseInt(scaleY),
+            start_time: parseFloat(startTime),
+            duration: parseFloat(duration)
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const gifUrl = data.location;
+
+          // Polling the GIF URL to check when the GIF is ready
+          const checkGifReady = async (url) => {
+            try {
+              const gifResponse = await fetch(url, { 
+                headers: {
+                  'Authorization': "Bearer <%= cookie %>"
+                }
+              });
+              if (gifResponse.status === 200) {
+                const gifBlob = await gifResponse.blob();
+                const gifUrlObject = URL.createObjectURL(gifBlob);
+
+                const gif = document.createElement('img');
+                gif.src = gifUrlObject;
+
+                uploadContainer.innerHTML = ''; // Clear previous content
+                uploadContainer.appendChild(gif);
+              } else {
+                // GIF is not ready yet, continue polling every 3 seconds
+                setTimeout(() => checkGifReady(url), 3000);
+              }
+            } catch (error) {
+              console.error('Error checking GIF status:', error);
+              setTimeout(() => checkGifReady(url), 3000); // Retry after 3 seconds if there was an error
+            }
+          };
+
+          checkGifReady(gifUrl);
+        } else {
+          console.error('Error converting video to GIF');
+        }
+      }
     });
   </script>
 </body>

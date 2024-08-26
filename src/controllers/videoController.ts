@@ -138,6 +138,7 @@ export const uploadVideo = async (req: Request, res: Response) => {
         const videoUrl = `${req.protocol}://${req.get('host')}/api/videos/${videoId}`;
         res.status(201).header('Location', videoUrl).json({
             message: 'Video uploaded successfully',
+            videoId: videoId,
             location: videoUrl,
         });
     } catch (err) {
@@ -187,7 +188,7 @@ function validateSettings(settings: VideoConversionBody, videoDuration: number):
         return false;
     }
 
-    if (settings.duration !== undefined && (typeof settings.duration !== 'number' || settings.duration <= 0)) {
+    if (settings.duration !== undefined && settings.duration !== null && (typeof settings.duration !== 'number' || settings.duration <= 0)) {
         return false;
     }
 
@@ -239,6 +240,7 @@ export const convertVideo = async (req: Request, res: Response) => {
         const gifUrl = `${req.protocol}://${req.get('host')}/api/gifs/${gifId}`;
         res.status(202).header('Location', gifUrl).json({
             message: 'GIF conversion in progress',
+            gifId: gifId,
             location: gifUrl
         });
     } catch (err) {
