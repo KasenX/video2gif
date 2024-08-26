@@ -15,7 +15,7 @@ export const loginPost = (req: Request, res: Response) => {
       return res.sendStatus(401);
    }
  
-   res.cookie("token", token, {
+   res.cookie("authToken", token, {
       httpOnly: true,
       sameSite: "strict",
    });
@@ -24,7 +24,7 @@ export const loginPost = (req: Request, res: Response) => {
 }
 
 export const logout = (req: Request, res: Response) => {
-   res.clearCookie("token");
+   res.clearCookie("authToken");
    res.redirect("/login");
 }
 
@@ -45,7 +45,8 @@ export const home = async (req: Request, res: Response) => {
       scale_x: preferences.scale_x === -1 ? "Auto" : preferences.scale_x,
       scale_y: preferences.scale_y === -1 ? "Auto" : preferences.scale_y,
       startTime: 0,
-      duration: ""
+      duration: "",
+      cookie: req.cookies.authToken,
    });
 }
 

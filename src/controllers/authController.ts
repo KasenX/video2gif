@@ -33,16 +33,16 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 };
 
 export const authenticateCookie = (req: Request, res: Response, next: NextFunction) => {
-    const token = req.cookies.token;
+    const token = req.cookies.authToken;
 
     if (!token) {
-        return res.status(401).json({ error: 'Cookie auth token missing' });
+        return res.status(401).redirect('/login');
     }
 
     const decoded = authenticateTokenService(token);
 
     if (!decoded) {
-        return res.status(401).json({ error: 'Invalid token' });
+        return res.status(401).redirect('/login');
     }
 
     req.user = decoded.user;
