@@ -82,13 +82,13 @@
       const saveButton = document.getElementById('save-button');
 
       function validateForm() {
-        const isValidFps = validateFps(fpsInput.value);
-        const isValidScaleX = validateScale(scaleXInput.value);
-        const isValidScaleY = validateScale(scaleYInput.value);
-        fpsError.classList.toggle('hidden', isValidFps);
-        scaleXError.classList.toggle('hidden', isValidScaleX);
-        scaleYError.classList.toggle('hidden', isValidScaleY);
-        saveButton.disabled = !isValidFps || !isValidScaleX || !isValidScaleY;
+        const isFpsValid = validateFps(fpsInput.value);
+        const isScaleXValid = validateScale(scaleXInput.value);
+        const isScaleYValid = validateScale(scaleYInput.value);
+        fpsError.classList.toggle('hidden', isFpsValid);
+        scaleXError.classList.toggle('hidden', isScaleXValid);
+        scaleYError.classList.toggle('hidden', isScaleYValid);
+        saveButton.disabled = !isFpsValid || !isScaleXValid || !isScaleYValid;
       }
 
       // Attach validation on input change
