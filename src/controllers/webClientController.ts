@@ -46,7 +46,7 @@ export const home = async (req: Request, res: Response) => {
       scale_y: preferences.scale_y === -1 ? "Auto" : preferences.scale_y,
       startTime: 0,
       duration: "",
-      cookie: req.cookies.authToken,
+      authToken: req.cookies.authToken,
    });
 }
 
