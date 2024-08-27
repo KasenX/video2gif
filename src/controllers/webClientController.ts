@@ -1,6 +1,8 @@
 import type { Request, Response } from 'express';
+import path from 'path';
 import { generateAccessToken } from '../services/authService';
 import { updatePreferences } from '../repositories/preferencesRepository';
+import { getGifs } from '../services/gifService';
 import { getPreferences } from '../services/preferencesService';
 
 export const loginGet = (req: Request, res: Response) => {
@@ -47,6 +49,18 @@ export const home = async (req: Request, res: Response) => {
    });
 }
 
+export const gallery = async (req: Request, res: Response) => {
+   if (!req.user) {
+      return res.sendStatus(500);
+   }
+
+   const gifs = await getGifs(req.user.id);
+
+   res.render("gallery", {
+      gifs: gifs,
+   });
+}
+
 export const profileGet = async (req: Request, res: Response) => {
    if (!req.user) {
       return res.sendStatus(500);
@@ -76,4 +90,17 @@ export const profilePost = async (req: Request, res: Response) => {
    });
 
    res.redirect("/");
+}
+
+export const gif = async (req: Request, res: Response) => {
+   const gifName = req.params.gifName;
+
+   const gifPath = path.join(__dirname, '..', '..', 'gifs', `${gifName}`);
+
+   res.sendFile(gifPath, (err) => {
+       if (err) {
+           console.error('Error serving the gif file', err);
+           res.status(500).json({ error: 'Failed to serve the gif file' });
+       }
+   });
 }

@@ -1,7 +1,8 @@
 import type { Request, Response, NextFunction } from 'express';
 import { validate } from 'uuid';
 import path from 'path';
-import { findGif, findGifs } from '../repositories/gifRepository';
+import { findGif } from '../repositories/gifRepository';
+import { getGifs as getGifsService } from '../services/gifService';
 
 export const checkGifOwnership = async (req: Request, res: Response, next: NextFunction) => {
     const gifId = req.params.gifId as string;
@@ -64,7 +65,7 @@ export const getGifs = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Failed to find the user' });
         }
 
-        const gifs = await findGifs(userId);
+        const gifs = await getGifsService(userId);
 
         return res.status(200).json({ gifs });
     } catch (err) {

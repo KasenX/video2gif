@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profile - Video to GIF Converter</title>
+  <title>Upload Video - Video to GIF Converter</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body class="bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 min-h-screen">
   <header class="bg-white shadow-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -48,67 +46,26 @@
     </div>
   </header>
 
-  <main class="flex items-center justify-center mt-16">
-    <div class="w-full max-w-lg p-10 bg-white rounded-lg shadow-lg">
-      <h2 class="text-2xl font-bold text-gray-800 mb-4">User Profile</h2>
-      
-      <!-- Display user email -->
-      <div class="mb-6">
-        <label class="block text-sm font-medium text-gray-700">Email:</label>
-        <p class="mt-1 text-gray-500"><%= email %></p>
-      </div>
-      
-      <!-- Editable preferences form -->
-      <form id="profile-form" method="POST">
-        <div class="mb-4">
-          <label for="fps" class="block text-sm font-medium text-gray-700">Default FPS:</label>
-          <input type="text" id="fps" name="fps" value="<%= fps %>"class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="e.g. 10">
-          <p id="fps-error" class="text-red-500 text-sm mt-1 hidden">Invalid FPS value. Please enter a positive integer.</p>
+<!-- Gallery Container -->
+<main class="flex-grow container mx-auto py-8"> 
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <% if (gifs && gifs.length > 0) { %>
+      <% gifs.forEach(gif => { %>
+        <div class="bg-white p-4 shadow-md rounded-lg">
+          <img src="/gifs/<%= gif.id %><%= gif.extension %>" alt="GIF" class="w-full h-auto object-contain">
         </div>
-        
-        <div class="mb-4">
-          <label for="scaleX" class="block text-sm font-medium text-gray-700">Default Scale X:</label>
-          <input type="text" id="scale-x" name="scale_x" value="<%= scale_x %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="e.g. 320 or Auto">
-          <p id="scale-x-error" class="text-red-500 text-sm mt-1 hidden">Invalid Scale X value. Please enter a positive integer or "Auto".</p>
-        </div>
-        
-        <div class="mb-4">
-          <label for="scaleY" class="block text-sm font-medium text-gray-700">Default Scale Y:</label>
-          <input type="text" id="scale-y" name="scale_y" value="<%= scale_y %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="e.g. 240 or Auto">
-          <p id="scale-y-error" class="text-red-500 text-sm mt-1 hidden">Invalid Scale Y value. Please enter a positive integer or "Auto".</p>
-        </div>
+      <% }) %>
+    <% } else { %>
+      <p class="text-gray-600">No GIFs found. Start converting videos to GIFs!</p>
+    <% } %>
+  </div>
+</main>
+  
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    
+  });
+</script>
 
-        <button id="save-button" type="submit" class="w-full bg-purple-600 text-white font-bold py-2 px-4 rounded-md hover:bg-purple-700 transition duration-300 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500">Save Preferences</button>
-      </form>
-    </div>
-  </main>
-  <script src="main.js"></script>
-  <script>
-
-    document.addEventListener('DOMContentLoaded', function() {
-      const fpsInput = document.getElementById('fps');
-      const scaleXInput = document.getElementById('scale-x');
-      const scaleYInput = document.getElementById('scale-y');
-      const fpsError = document.getElementById('fps-error');
-      const scaleXError = document.getElementById('scale-x-error');
-      const scaleYError = document.getElementById('scale-y-error');
-      const saveButton = document.getElementById('save-button');
-
-      function validateForm() {
-        const isFpsValid = validateFps(fpsInput.value);
-        const isScaleXValid = validateScale(scaleXInput.value);
-        const isScaleYValid = validateScale(scaleYInput.value);
-        fpsError.classList.toggle('hidden', isFpsValid);
-        scaleXError.classList.toggle('hidden', isScaleXValid);
-        scaleYError.classList.toggle('hidden', isScaleYValid);
-        saveButton.disabled = !isFpsValid || !isScaleXValid || !isScaleYValid;
-      }
-
-      // Attach validation on input change
-      fpsInput.addEventListener('input', validateForm);
-      scaleXInput.addEventListener('input', validateForm);
-      scaleYInput.addEventListener('input', validateForm);
-    });
-  </script>
 </body>
 </html>
