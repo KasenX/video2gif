@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { generateAccessToken } from '../services/authService';
-import { findPreferences, updatePreferences } from '../repositories/preferencesRepository';
+import { updatePreferences } from '../repositories/preferencesRepository';
+import { getPreferences } from '../services/preferencesService';
 
 export const loginGet = (req: Request, res: Response) => {
    res.render("login");
@@ -33,11 +34,7 @@ export const home = async (req: Request, res: Response) => {
       return res.sendStatus(500);
    }
 
-   const preferences = await findPreferences(req.user.id);
-
-   if (!preferences) {
-      return res.sendStatus(500);
-   }
+   const preferences = await getPreferences(req.user.id);
 
    res.render("home", {
       email: req.user.email,
@@ -55,11 +52,7 @@ export const profileGet = async (req: Request, res: Response) => {
       return res.sendStatus(500);
    }
 
-   const preferences = await findPreferences(req.user.id);
-
-   if (!preferences) {
-      return res.sendStatus(500);
-   }
+   const preferences = await getPreferences(req.user.id);
 
    res.render("profile", {
       email: req.user.email,

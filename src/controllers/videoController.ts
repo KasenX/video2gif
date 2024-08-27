@@ -8,7 +8,7 @@ import ffmpeg from 'fluent-ffmpeg';
 import { db } from '../db/connection';
 import { createVideo, findVideo, findVideos } from '../repositories/videoRepository';
 import { createGif, updateGif } from '../repositories/gifRepository';
-import { findPreferences } from '../repositories/preferencesRepository';
+import { getPreferences } from '../services/preferencesService';
 
 const supportedVideoFormats = [
     'mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'm4v', 'ogg'
@@ -148,7 +148,7 @@ export const uploadVideo = async (req: Request, res: Response) => {
 };
 
 async function resolveSettings(body: VideoConversionBody, userId: number): Promise<VideoConversionBody> {
-    const preferences = await findPreferences(userId);
+    const preferences = await getPreferences(userId);
     const settings: VideoConversionBody = {};
 
     settings.fps = body.fps || preferences?.fps || 10;
