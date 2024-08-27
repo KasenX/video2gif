@@ -1,5 +1,5 @@
 {
-  "name": "video2gif-server",
+  "name": "video2gif",
   "version": "1.0.0",
   "main": "dist/server.js",
   "scripts": {
