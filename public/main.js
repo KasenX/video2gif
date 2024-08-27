@@ -21,5 +21,5 @@ function validateStartTimeAndDuration(startTime, duration, videoDuration) {
 
     return isPositiveInteger(startTime) && startTime >= 0 &&
         isPositiveInteger(duration) && duration > 0 &&
-        startTime + duration <= videoDuration;
+        Number(startTime) + Number(duration) <= videoDuration;
 }
