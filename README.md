@@ -2,6 +2,17 @@
 
 **video2gif** is a Node.js and Express application that converts videos to GIFs using the `ffmpeg` library. The primary interface is a REST API, but it also includes a web client with a simple, modern design built using Express, EJS, and Tailwind CSS.
 
+## Preview
+
+### Conversion Page
+![Conversion Page](./screenshots/conversion_page.png)
+
+### Gallery Page
+![Gallery Page](./screenshots/gallery_page.png)
+
+### Login Page
+![Login Page](./screenshots/login_page.png)
+
 ## Features
 
 - **Video to GIF Conversion:** Convert uploaded videos into GIFs with customizable settings using the `ffmpeg` library.
