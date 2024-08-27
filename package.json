@@ -8,7 +8,7 @@
     "build": "tsc && npm run copy-public && npm run tailwind && npm run create-dirs",
     "copy-public": "cp -r ./public ./dist",
     "tailwind": "npx tailwindcss -i public/style.css -o dist/public/style.css",
-    "create-dirs": "mkdir -p dist/videos dist/gifs",
+    "create-dirs": "mkdir -p -m 777 dist/videos dist/gifs",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

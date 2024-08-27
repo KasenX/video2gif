@@ -1,8 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { JWTUserPayload } from '../types/types';
 
-// TODO: env variable
-const secretKey = 'your_secret_key';
+const secretKey = process.env.AUTH_SECRET_KEY as string;
 // TODO: implement user service
 const users = [
     { id: 1, email: 'user@example.com', password: 'password123' },
