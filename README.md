@@ -16,6 +16,9 @@
 ### Login Page
 ![Login Page](./preview/login_page.png)
 
+### Data
+![Data](./preview/data.png)
+
 ## Features ✨
 
 - **Video to GIF Conversion:** Convert uploaded videos into GIFs with customizable settings using the `ffmpeg` library.
