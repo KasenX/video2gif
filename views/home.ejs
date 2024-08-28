@@ -208,14 +208,14 @@
         const isFpsValid = validateFps(fpsInput.value);
         const isScaleXValid = validateScale(scaleXInput.value);
         const isScaleYValid = validateScale(scaleYInput.value);
-        const isValidStartTimeAndDuration = fileInput.files.length == 0 || validateStartTimeAndDuration(startTimeInput.value, durationInput.value, videoDuration);
+        const isValidStartTimeAndDuration = videoDuration == 0 || validateStartTimeAndDuration(startTimeInput.value, durationInput.value, videoDuration);
         
         fpsError.classList.toggle('hidden', isFpsValid);
         scaleXError.classList.toggle('hidden', isScaleXValid);
         scaleYError.classList.toggle('hidden', isScaleYValid);
         startTimeAndDurationError.classList.toggle('hidden', isValidStartTimeAndDuration);
 
-        const isFormValid = fileInput.files.length > 0 && isFpsValid && isScaleXValid && isScaleYValid && isValidStartTimeAndDuration;
+        const isFormValid = videoDuration > 0 && isFpsValid && isScaleXValid && isScaleYValid && isValidStartTimeAndDuration;
 
         convertButton.disabled = !isFormValid;
       }
