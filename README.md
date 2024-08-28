@@ -4,14 +4,17 @@
 
 ## Preview 👀
 
+### REST API
+![REST API](./preview/api.png)
+
 ### Conversion Page
-![Conversion Page](./screenshots/conversion_page.png)
+![Conversion Page](./preview/conversion_page.png)
 
 ### Gallery Page
-![Gallery Page](./screenshots/gallery_page.png)
+![Gallery Page](./preview/gallery_page.png)
 
 ### Login Page
-![Login Page](./screenshots/login_page.png)
+![Login Page](./preview/login_page.png)
 
 ## Features ✨
 
