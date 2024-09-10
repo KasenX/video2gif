@@ -6,6 +6,11 @@ export interface User {
     password: string;
 }
 
+export interface DatabaseCredentials {
+    username: string,
+    password: string
+}
+
 export interface JWTUserPayload extends JwtPayload {
     user: User;
 }
