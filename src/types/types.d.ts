@@ -6,9 +6,10 @@ export interface User {
     password: string;
 }
 
-export interface DatabaseCredentials {
-    username: string,
-    password: string
+export interface AWSSecrets {
+    dbUser: string,
+    dbPassword: string,
+    authSecretKey: string;
 }
 
 export interface AWSParameters {

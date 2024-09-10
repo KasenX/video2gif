@@ -28,12 +28,13 @@ async function startServer() {
     try {
         const credentials = await getDatabaseCredentials();
         const parameters = await getParameters();
-
-        process.env.DB_USER = credentials.username;
-        process.env.DB_PASSWORD = credentials.password;
+        
+        process.env.DB_USER = credentials.dbUser;
+        process.env.DB_PASSWORD = credentials.dbPassword;
         process.env.DB_HOST = parameters.dbHost;
         process.env.DB_NAME = parameters.dbName;
 
+        process.env.AUTH_SECRET_KEY = credentials.authSecretKey;
         process.env.URL = parameters.url;
 
         initializeDb();

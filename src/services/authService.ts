@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { JWTUserPayload } from '../types/types';
 
-const secretKey = 'TODO'
 // TODO: implement user service
 const users = [
     { id: 1, email: 'user@example.com', password: 'password123' },
@@ -15,12 +14,12 @@ export const generateAccessToken = (email: string, password: string): string | f
         return false;
     }
 
-    return jwt.sign({ user }, secretKey, { expiresIn: '1h' });
+    return jwt.sign({ user }, process.env.AUTH_SECRET_KEY as string, { expiresIn: '1h' });
 }
 
 export const authenticateToken = (token: string): JWTUserPayload | false => {
     try {
-        return jwt.verify(token, secretKey) as JWTUserPayload;
+        return jwt.verify(token, process.env.AUTH_SECRET_KEY as string) as JWTUserPayload;
     } catch (error) {
         return false;
     }

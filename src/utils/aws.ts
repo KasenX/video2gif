@@ -1,46 +1,67 @@
 import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 import { SSMClient, GetParametersCommand } from "@aws-sdk/client-ssm";
-import type { DatabaseCredentials, AWSParameters } from "../types/types";
+import type { AWSSecrets, AWSParameters } from "../types/types";
 
-const secret_name = "rds!db-66386ae9-73e6-4fa5-b606-04437acebac0";
-const secret_client = new SecretsManagerClient({
+const rdsSecretName = "rds!db-66386ae9-73e6-4fa5-b606-04437acebac0";
+const authSecretName = "n12134171/auth_secret_key";
+const secretClient = new SecretsManagerClient({
     region: "ap-southeast-2",
 });
 
-export const getDatabaseCredentials = async (): Promise<DatabaseCredentials> => {
+export const getDatabaseCredentials = async (): Promise<AWSSecrets> => {
     try {
-        const response = await secret_client.send(
+        const response = await secretClient.send(
             new GetSecretValueCommand({
-                SecretId: secret_name
+                SecretId: rdsSecretName
             })
         );
   
-        if (response.SecretString) {
-            return JSON.parse(response.SecretString);
-        } else {
-            throw new Error("SecretString is undefined");
+        const rdsSecrets = response.SecretString ? JSON.parse(response.SecretString) : undefined;
+
+        if (!rdsSecrets) {
+            throw new Error("RDS SecretString is undefined");
         }
+
+        const authResponse = await secretClient.send(
+            new GetSecretValueCommand({
+                SecretId: authSecretName
+            })
+        );
+  
+        const authSecretKey = authResponse.SecretString;
+
+        if (!authSecretKey) {
+            throw new Error("Auth SecretString is undefined");
+        }
+
+        return {
+            dbUser: rdsSecrets.username,
+            dbPassword: rdsSecrets.password,
+            authSecretKey: authSecretKey,
+        };
+
     } catch (error) {
         console.error("Error retrieving secrets", error);
         throw error;
     }
 }
 
-const parameter_client = new SSMClient({
+const parametersNames = [
+    '/n12134171/url',
+    '/n12134171/rds/url',
+    '/n12134171/rds/db_name'
+];
+const parameterClient = new SSMClient({
     region: "ap-southeast-2",
 });
 
 export const getParameters = async (): Promise<AWSParameters> => {
     try {
         const command = new GetParametersCommand({
-            Names: [
-                '/n12134171/url',
-                '/n12134171/rds/url',
-                '/n12134171/rds/db_name'
-            ]
+            Names: parametersNames
         });
     
-        const response = await parameter_client.send(command);
+        const response = await parameterClient.send(command);
     
         if (!response.Parameters || response.Parameters.length !== 3) {
           throw new Error("Invalid number of parameters");
