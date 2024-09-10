@@ -4,11 +4,11 @@ import { Kysely, PostgresDialect } from 'kysely';
 
 const dialect = new PostgresDialect({
     pool: new Pool({
-        host: 'n12134171-assessment.ce2haupt2cta.ap-southeast-2.rds.amazonaws.com',
+        host: process.env.DB_HOST,
         port: 5432,
-        database: 'video2gif',
-        user: 'video2gif',
-        password: 'YXO~Q{k0dcTI3*Q5cPQ5IRH7nP$U',
+        database: process.env.DB_NAME,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
         max: 10,
         ssl: {
             rejectUnauthorized: false
