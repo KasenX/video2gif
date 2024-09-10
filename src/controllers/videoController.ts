@@ -5,7 +5,7 @@ import { v4 as uuidv4, validate } from 'uuid';
 import path from 'path';
 import fs from 'fs';
 import ffmpeg from 'fluent-ffmpeg';
-import { db } from '../db/connection';
+import { getDb } from '../db/connection';
 import { createVideo, findVideo, findVideos } from '../repositories/videoRepository';
 import { createGif, updateGif } from '../repositories/gifRepository';
 import { getPreferences } from '../services/preferencesService';
@@ -122,7 +122,7 @@ export const uploadVideo = async (req: Request, res: Response) => {
     try {
         const uniqueFileName = `${videoId}${fileExtension}`;
 
-        await db.transaction().execute(async (trx) => {
+        await getDb().transaction().execute(async (trx) => {
             await createVideo(trx, {
                 id: videoId,
                 user_id: userId,

@@ -5,8 +5,8 @@ import videoRoutes from './routes/video';
 import gifRoutes from './routes/gif';
 import preferencesRoutes from './routes/preferences';
 import webClientRoutes from './routes/webClient';
-import { getDatabaseCredentials } from './utils/aws';
-import { db } from './db/connection';
+import { getDatabaseCredentials, getParameters } from './utils/aws';
+import { initializeDb } from './db/connection';
 
 const app = express();
 const port = 3000;
@@ -27,16 +27,19 @@ app.use('/', webClientRoutes);
 async function startServer() {
     try {
         const credentials = await getDatabaseCredentials();
+        const parameters = await getParameters();
 
         process.env.DB_USER = credentials.username;
         process.env.DB_PASSWORD = credentials.password;
-        process.env.DB_HOST = 'n12134171-assessment.ce2haupt2cta.ap-southeast-2.rds.amazonaws.com';
-        process.env.DB_NAME = 'video2gif';
+        process.env.DB_HOST = parameters.dbHost;
+        process.env.DB_NAME = parameters.dbName;
 
-        await db;
+        process.env.URL = parameters.url;
+
+        initializeDb();
 
         app.listen(port, () => {
-            console.log(`Server is running on port ${port}`);
+            console.log(`Server is running on url: http://${process.env.URL}:${port}`);
         });
     } catch (error) {
         console.error('Error starting the server', error);

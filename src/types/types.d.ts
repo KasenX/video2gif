@@ -11,6 +11,12 @@ export interface DatabaseCredentials {
     password: string
 }
 
+export interface AWSParameters {
+    url: string;
+    dbHost: string;
+    dbName: string;
+}
+
 export interface JWTUserPayload extends JwtPayload {
     user: User;
 }
