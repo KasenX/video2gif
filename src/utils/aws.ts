@@ -22,22 +22,9 @@ export const getDatabaseCredentials = async (): Promise<AWSSecrets> => {
             throw new Error("RDS SecretString is undefined");
         }
 
-        const authResponse = await secretClient.send(
-            new GetSecretValueCommand({
-                SecretId: authSecretName
-            })
-        );
-  
-        const authSecretKey = authResponse.SecretString;
-
-        if (!authSecretKey) {
-            throw new Error("Auth SecretString is undefined");
-        }
-
         return {
             dbUser: rdsSecrets.username,
-            dbPassword: rdsSecrets.password,
-            authSecretKey: authSecretKey,
+            dbPassword: rdsSecrets.Password
         };
 
     } catch (error) {

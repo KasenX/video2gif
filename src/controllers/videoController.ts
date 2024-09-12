@@ -147,7 +147,7 @@ export const uploadVideo = async (req: Request, res: Response) => {
     }
 };
 
-async function resolveSettings(body: VideoConversionBody, userId: number): Promise<VideoConversionBody> {
+async function resolveSettings(body: VideoConversionBody, userId: string): Promise<VideoConversionBody> {
     const preferences = await getPreferences(userId);
     const settings: VideoConversionBody = {};
 

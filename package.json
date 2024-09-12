@@ -24,8 +24,10 @@
   "homepage": "https://github.com/KasenX/video2gif#readme",
   "description": "",
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.650.0",
     "@aws-sdk/client-secrets-manager": "^3.645.0",
     "@aws-sdk/client-ssm": "^3.645.0",
+    "aws-jwt-verify": "^4.0.1",
     "cookie-parser": "^1.4.6",
     "ejs": "^3.1.10",
     "express": "^4.19.2",

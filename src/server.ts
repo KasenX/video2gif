@@ -34,7 +34,6 @@ async function startServer() {
         process.env.DB_HOST = parameters.dbHost;
         process.env.DB_NAME = parameters.dbName;
 
-        process.env.AUTH_SECRET_KEY = credentials.authSecretKey;
         process.env.URL = parameters.url;
 
         initializeDb();

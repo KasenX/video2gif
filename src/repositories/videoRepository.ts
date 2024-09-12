@@ -2,7 +2,7 @@ import { getDb } from '../db/connection';
 import type { Database, NewVideo, Video } from '../db/schema';
 import type { Transaction } from 'kysely';
 
-export async function findVideo(videoId: string, userId: number): Promise<Video | undefined> {
+export async function findVideo(videoId: string, userId: string): Promise<Video | undefined> {
     return await getDb().selectFrom('video')
     .selectAll()
     .where('id', '=', videoId)
@@ -10,7 +10,7 @@ export async function findVideo(videoId: string, userId: number): Promise<Video 
     .executeTakeFirst();
 }
 
-export async function findVideos(userId: number): Promise<Video[]> {
+export async function findVideos(userId: string): Promise<Video[]> {
     return await getDb().selectFrom('video')
     .selectAll()
     .where('user_id', '=', userId)

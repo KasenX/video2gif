@@ -1,7 +1,7 @@
 import { getDb } from '../db/connection';
 import type { NewGif, Gif, GifUpdate } from '../db/schema';
 
-export async function findGif(gifId: string, userId: number): Promise<Gif | undefined> {
+export async function findGif(gifId: string, userId: string): Promise<Gif | undefined> {
     return await getDb().selectFrom('gif')
     .selectAll()
     .where('id', '=', gifId)
@@ -9,7 +9,7 @@ export async function findGif(gifId: string, userId: number): Promise<Gif | unde
     .executeTakeFirst();
 }
 
-export async function findGifs(userId: number): Promise<Gif[]> {
+export async function findGifs(userId: string): Promise<Gif[]> {
     return await getDb().selectFrom('gif')
     .selectAll()
     .where('user_id', '=', userId)
