@@ -5,7 +5,7 @@ import videoRoutes from './routes/video';
 import gifRoutes from './routes/gif';
 import preferencesRoutes from './routes/preferences';
 import webClientRoutes from './routes/webClient';
-import { getDatabaseCredentials, getParameters } from './utils/aws';
+import { getSecrets, getParameters } from './utils/aws';
 import { initializeDb } from './db/connection';
 
 const app = express();
@@ -26,7 +26,7 @@ app.use('/', webClientRoutes);
 
 async function startServer() {
     try {
-        const credentials = await getDatabaseCredentials();
+        const credentials = await getSecrets();
         const parameters = await getParameters();
         
         process.env.DB_USER = credentials.dbUser;

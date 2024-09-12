@@ -3,12 +3,11 @@ import { SSMClient, GetParametersCommand } from "@aws-sdk/client-ssm";
 import type { AWSSecrets, AWSParameters } from "../types/types";
 
 const rdsSecretName = "rds!db-66386ae9-73e6-4fa5-b606-04437acebac0";
-const authSecretName = "n12134171/auth_secret_key";
 const secretClient = new SecretsManagerClient({
     region: "ap-southeast-2",
 });
 
-export const getDatabaseCredentials = async (): Promise<AWSSecrets> => {
+export const getSecrets = async (): Promise<AWSSecrets> => {
     try {
         const response = await secretClient.send(
             new GetSecretValueCommand({
@@ -24,7 +23,7 @@ export const getDatabaseCredentials = async (): Promise<AWSSecrets> => {
 
         return {
             dbUser: rdsSecrets.username,
-            dbPassword: rdsSecrets.Password
+            dbPassword: rdsSecrets.password
         };
 
     } catch (error) {
