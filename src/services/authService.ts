@@ -58,8 +58,7 @@ export const signUp = async (email: string, password: string): Promise<void> => 
         Username: email,
         Password: password
     });
-    const res = await client.send(command);
-    console.log(res);
+    await client.send(command);
 }
 
 export const confirmSignUp = async (email: string, code: string): Promise<void> => {
@@ -69,6 +68,5 @@ export const confirmSignUp = async (email: string, code: string): Promise<void> 
         Username: email,
         ConfirmationCode: code
     });
-    const res = await client.send(command);
-    console.log(res);
+    await client.send(command);
 }
