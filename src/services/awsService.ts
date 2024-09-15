@@ -1,11 +1,17 @@
+import fs from 'fs';
 import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 import { SSMClient, GetParametersCommand } from "@aws-sdk/client-ssm";
 import type { AWSSecrets, AWSParameters } from "../types/types";
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const rdsSecretName = "rds!db-66386ae9-73e6-4fa5-b606-04437acebac0";
 const secretClient = new SecretsManagerClient({
     region: "ap-southeast-2",
 });
+
+const bucketName = 'n12134171-assessment';
+const s3Client = new S3Client({ region: 'ap-southeast-2' });
 
 export const getSecrets = async (): Promise<AWSSecrets> => {
     try {
@@ -70,5 +76,39 @@ export const getParameters = async (): Promise<AWSParameters> => {
     } catch (error) {
         console.error("Error retrieving parameters", error);
         throw error;
+    }
+}
+
+export const uploadGifFile = async (filePath: string, gifId: string): Promise<void> => {
+    try {
+        // Read the file from the local file system
+        const fileStream = fs.createReadStream(filePath);
+
+        const command = new PutObjectCommand({
+            Bucket: bucketName,
+            Key: `${gifId}.gif`,
+            Body: fileStream,
+            ContentType: 'image/gif',
+        });
+
+        await s3Client.send(command);
+    } catch (err) {
+        console.error('Error uploading file to S3', err);
+        throw err;
+    }
+}
+
+export const generatePreSignedUrl = async (gifId: string): Promise<string> => {
+    try {
+        const command = new GetObjectCommand({
+            Bucket: bucketName,
+            Key: `${gifId}.gif`,
+        });
+
+        // Generate a pre-signed URL that expires in 1 hour (3600 seconds)
+        return await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+    } catch (err) {
+        console.error('Error generating pre-signed URL', err);
+        throw err;
     }
 }

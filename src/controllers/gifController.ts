@@ -1,8 +1,8 @@
 import type { Request, Response, NextFunction } from 'express';
 import { validate } from 'uuid';
-import path from 'path';
 import { findGif } from '../repositories/gifRepository';
 import { getGifs as getGifsService } from '../services/gifService';
+import { generatePreSignedUrl } from '../services/awsService';
 
 export const checkGifOwnership = async (req: Request, res: Response, next: NextFunction) => {
     const gifId = req.params.gifId as string;
@@ -32,7 +32,7 @@ export const checkGifOwnership = async (req: Request, res: Response, next: NextF
     }
 }
 
-export const getGif = (req: Request, res: Response) => {
+export const getGif = async (req: Request, res: Response) => {
     const gif = req.gif;
 
     if (!gif) {
@@ -47,14 +47,8 @@ export const getGif = (req: Request, res: Response) => {
         return res.status(410).json({ error: 'Gif processing failed. Please try initiating the processing again.' });
     }
 
-    const gifPath = path.join(__dirname, '..', '..', 'gifs', `${gif.id}${gif.extension}`);
-
-    res.sendFile(gifPath, (err) => {
-        if (err) {
-            console.error('Error serving the gif file', err);
-            res.status(500).json({ error: 'Failed to serve the gif file' });
-        }
-    });
+    const preSignedUrl = await generatePreSignedUrl(gif.id);
+    res.redirect(preSignedUrl);
 }
 
 export const getGifs = async (req: Request, res: Response) => {

@@ -52,7 +52,7 @@
     <% if (gifs && gifs.length > 0) { %>
       <% gifs.forEach(gif => { %>
         <div class="bg-white p-4 shadow-md rounded-lg">
-          <img src="/gifs/<%= gif.id %><%= gif.extension %>" alt="GIF" class="w-full h-auto object-contain">
+          <img src="/gifs/<%= gif.id %>" alt="GIF" class="w-full h-auto object-contain">
         </div>
       <% }) %>
     <% } else { %>

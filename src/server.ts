@@ -5,7 +5,7 @@ import videoRoutes from './routes/video';
 import gifRoutes from './routes/gif';
 import preferencesRoutes from './routes/preferences';
 import webClientRoutes from './routes/webClient';
-import { getSecrets, getParameters } from './utils/aws';
+import { getSecrets, getParameters } from './services/awsService';
 import { initializeDb } from './db/connection';
 
 const app = express();
@@ -34,12 +34,10 @@ async function startServer() {
         process.env.DB_HOST = parameters.dbHost;
         process.env.DB_NAME = parameters.dbName;
 
-        process.env.URL = parameters.url;
-
         initializeDb();
 
         app.listen(port, () => {
-            console.log(`Server is running on url: http://${process.env.URL}:${port}`);
+            console.log(`Server is running on url: http://${parameters.url}:${port}`);
         });
     } catch (error) {
         console.error('Error starting the server', error);

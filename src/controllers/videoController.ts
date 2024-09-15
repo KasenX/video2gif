@@ -9,6 +9,7 @@ import { getDb } from '../db/connection';
 import { createVideo, findVideo, findVideos } from '../repositories/videoRepository';
 import { createGif, updateGif } from '../repositories/gifRepository';
 import { getPreferences } from '../services/preferencesService';
+import { uploadGifFile } from '../services/awsService';
 
 const supportedVideoFormats = [
     'mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'm4v', 'ogg'
@@ -49,7 +50,7 @@ export const getVideo = (req: Request, res: Response) => {
         return res.status(400).json({ error: 'Failed to find the video file' });
     }
 
-    const videoPath = path.join(__dirname, '..', '..', 'videos', `${video.id}${video.extension}`);
+    const videoPath = path.join(__dirname, '..', '..', 'videos', `${video.id}.${video.extension}`);
 
     res.sendFile(videoPath, (err) => {
         if (err) {
@@ -127,7 +128,7 @@ export const uploadVideo = async (req: Request, res: Response) => {
                 id: videoId,
                 user_id: userId,
                 name: fileName,
-                extension: fileExtension,
+                extension: fileExtension.slice(1),
                 size: file.size,
                 uploaded: new Date()
             });
@@ -216,7 +217,7 @@ export const convertVideo = async (req: Request, res: Response) => {
     }
 
     const settings = await resolveSettings(body, userId);
-    const videoPath = path.join(__dirname, '..', '..', 'videos', `${video.id}${video.extension}`);
+    const videoPath = path.join(__dirname, '..', '..', 'videos', `${video.id}.${video.extension}`);
 
     try {
         const videoDuration = await getVideoDuration(videoPath);
@@ -230,7 +231,7 @@ export const convertVideo = async (req: Request, res: Response) => {
             user_id: userId,
             video_id: video.id,
             name: video.name,
-            extension: '.gif',
+            extension: 'gif',
             size: -1,
             status: 'in_progress',
             created: new Date(),
@@ -256,25 +257,31 @@ const convertVideoToGif = (videoPath: string, gifId: string, settings: VideoConv
 
     try {
         const ffmpegCommmand = ffmpeg(videoPath)
-        .setStartTime(settings.startTime!)
-        .outputOptions([
-            '-vf', `fps=${settings.fps},scale=${settings.scale_x}:${settings.scale_y}:flags=lanczos`
-        ]);
+            .setStartTime(settings.startTime!)
+            .outputOptions([
+                '-vf', `fps=${settings.fps},scale=${settings.scale_x}:${settings.scale_y}:flags=lanczos`
+            ]);
 
         if (settings.duration) {
             ffmpegCommmand.duration(settings.duration);
         }
 
         ffmpegCommmand
-        .on('end', () => {
-            updateGif(gifId, {
+        .on('end', async () => {
+            // Upload the gif file to S3
+            await uploadGifFile(gifPath, gifId);
+
+            await updateGif(gifId, {
                 size: fs.statSync(gifPath).size,
                 status: 'completed',
                 completed: new Date(),
             });
+
+            // Delete the gif file from the local file system
+            fs.unlinkSync(gifPath);
         })
-        .on('error', (err) => {
-            updateGif(gifId, {
+        .on('error', async (err) => {
+            await updateGif(gifId, {
                 status: 'failed',
                 completed: new Date()
             });

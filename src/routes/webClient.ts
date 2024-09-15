@@ -26,7 +26,7 @@ router.get('/login', loginGet);
 router.post('/login', loginPost);
 router.get('/logout', authenticateCookie, logout);
 router.get('/gallery', authenticateCookie, gallery);
-router.get('/gifs/:gifName', authenticateCookie, gif);
+router.get('/gifs/:gifId', authenticateCookie, gif);
 router.get('/profile', authenticateCookie, profileGet);
 router.post('/profile', authenticateCookie, profilePost);
 router.get('/', authenticateCookie, home);

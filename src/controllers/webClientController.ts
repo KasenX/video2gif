@@ -5,6 +5,7 @@ import { signUp, confirmSignUp } from '../services/authService';
 import { updatePreferences } from '../repositories/preferencesRepository';
 import { getGifs } from '../services/gifService';
 import { getPreferences } from '../services/preferencesService';
+import { generatePreSignedUrl } from '../services/awsService';
 
 export const signUpGet = (req: Request, res: Response) => {
    res.render("signup");
@@ -119,14 +120,8 @@ export const profilePost = async (req: Request, res: Response) => {
 }
 
 export const gif = async (req: Request, res: Response) => {
-   const gifName = req.params.gifName;
+   const gifId = req.params.gifId as string;
 
-   const gifPath = path.join(__dirname, '..', '..', 'gifs', `${gifName}`);
-
-   res.sendFile(gifPath, (err) => {
-       if (err) {
-           console.error('Error serving the gif file', err);
-           res.status(500).json({ error: 'Failed to serve the gif file' });
-       }
-   });
+   const preSignedUrl = await generatePreSignedUrl(gifId);
+   res.redirect(preSignedUrl);
 }
