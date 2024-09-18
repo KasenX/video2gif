@@ -1,11 +1,10 @@
 import type { Request, Response } from 'express';
-import path from 'path';
 import { generateAccessToken } from '../services/authService';
 import { signUp, confirmSignUp } from '../services/authService';
 import { updatePreferences } from '../repositories/preferencesRepository';
 import { getGifs } from '../services/gifService';
 import { getPreferences } from '../services/preferencesService';
-import { generatePreSignedUrl } from '../services/awsService';
+import { generateGifUrl } from '../services/awsService';
 
 export const signUpGet = (req: Request, res: Response) => {
    res.render("signup");
@@ -122,6 +121,6 @@ export const profilePost = async (req: Request, res: Response) => {
 export const gif = async (req: Request, res: Response) => {
    const gifId = req.params.gifId as string;
 
-   const preSignedUrl = await generatePreSignedUrl(gifId);
+   const preSignedUrl = await generateGifUrl(gifId);
    res.redirect(preSignedUrl);
 }

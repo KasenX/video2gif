@@ -3,6 +3,7 @@ CREATE TABLE "video" (
     "user_id" UUID NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "extension" VARCHAR(255) NOT NULL,
+    "duration" DECIMAL NOT NULL,
     "size" BIGINT NOT NULL,
     "uploaded" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

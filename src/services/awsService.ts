@@ -1,10 +1,14 @@
-import fs from 'fs';
+import { createReadStream, createWriteStream } from 'fs';
+import path from 'path';
+import { pipeline } from 'stream';
+import { promisify } from 'util';
 import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 import { SSMClient, GetParametersCommand } from "@aws-sdk/client-ssm";
 import type { AWSSecrets, AWSParameters } from "../types/types";
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
+const pipelineAsync = promisify(pipeline);
 const rdsSecretName = "rds!db-66386ae9-73e6-4fa5-b606-04437acebac0";
 const secretClient = new SecretsManagerClient({
     region: "ap-southeast-2",
@@ -79,14 +83,33 @@ export const getParameters = async (): Promise<AWSParameters> => {
     }
 }
 
-export const uploadGifFile = async (filePath: string, gifId: string): Promise<void> => {
+export const uploadVideoFile = async (filePath: string, videoId: string, videoExtension: string): Promise<void> => {
     try {
         // Read the file from the local file system
-        const fileStream = fs.createReadStream(filePath);
+        const fileStream = createReadStream(filePath);
 
         const command = new PutObjectCommand({
             Bucket: bucketName,
-            Key: `${gifId}.gif`,
+            Key: `videos/${videoId}.${videoExtension}`,
+            Body: fileStream,
+            ContentType: `video/${videoExtension}`,
+        });
+
+        await s3Client.send(command);
+    } catch (err) {
+        console.error('Error uploading file to S3', err);
+        throw err;
+    }
+}
+
+export const uploadGifFile = async (filePath: string, gifId: string): Promise<void> => {
+    try {
+        // Read the file from the local file system
+        const fileStream = createReadStream(filePath);
+
+        const command = new PutObjectCommand({
+            Bucket: bucketName,
+            Key: `gifs/${gifId}.gif`,
             Body: fileStream,
             ContentType: 'image/gif',
         });
@@ -98,17 +121,57 @@ export const uploadGifFile = async (filePath: string, gifId: string): Promise<vo
     }
 }
 
-export const generatePreSignedUrl = async (gifId: string): Promise<string> => {
+export const generateVideoUrl = async (videoId: string, videoExtension: string): Promise<string> => {
     try {
         const command = new GetObjectCommand({
             Bucket: bucketName,
-            Key: `${gifId}.gif`,
+            Key: `videos/${videoId}.${videoExtension}`,
         });
 
         // Generate a pre-signed URL that expires in 1 hour (3600 seconds)
         return await getSignedUrl(s3Client, command, { expiresIn: 3600 });
     } catch (err) {
         console.error('Error generating pre-signed URL', err);
+        throw err;
+    }
+}
+
+export const generateGifUrl = async (gifId: string): Promise<string> => {
+    try {
+        const command = new GetObjectCommand({
+            Bucket: bucketName,
+            Key: `gifs/${gifId}.gif`,
+        });
+
+        // Generate a pre-signed URL that expires in 1 hour (3600 seconds)
+        return await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+    } catch (err) {
+        console.error('Error generating pre-signed URL', err);
+        throw err;
+    }
+}
+
+export const storeVideoFile = async (videoId: string, videoExtension: string): Promise<string> => {
+    const pipelineAsync = promisify(pipeline);
+    const tempVideoPath = path.join(__dirname, '..', '..', 'videos', `${videoId}.${videoExtension}`);
+    
+    try {
+        const command = new GetObjectCommand({
+            Bucket: bucketName,
+            Key: `videos/${videoId}.${videoExtension}`,
+        });
+        
+        const { Body } = await s3Client.send(command);
+
+        if (!Body) {
+            throw new Error('Failed to retrieve video file from S3');
+        }
+
+        await pipelineAsync(Body as NodeJS.ReadableStream, createWriteStream(tempVideoPath));
+        
+        return tempVideoPath;
+    } catch (err) {
+        console.error('Error storing video file', err);
         throw err;
     }
 }

@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import { validate } from 'uuid';
 import { findGif } from '../repositories/gifRepository';
 import { getGifs as getGifsService } from '../services/gifService';
-import { generatePreSignedUrl } from '../services/awsService';
+import { generateGifUrl } from '../services/awsService';
 
 export const checkGifOwnership = async (req: Request, res: Response, next: NextFunction) => {
     const gifId = req.params.gifId as string;
@@ -47,7 +47,7 @@ export const getGif = async (req: Request, res: Response) => {
         return res.status(410).json({ error: 'Gif processing failed. Please try initiating the processing again.' });
     }
 
-    const preSignedUrl = await generatePreSignedUrl(gif.id);
+    const preSignedUrl = await generateGifUrl(gif.id);
     res.redirect(preSignedUrl);
 }
 

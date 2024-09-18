@@ -16,6 +16,7 @@ export interface VideoTable {
     user_id: string,
     name: string,
     extension: string,
+    duration: number,
     size: number,
     uploaded: ColumnType<Date, Date, never>
 }
