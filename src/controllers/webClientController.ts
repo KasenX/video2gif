@@ -1,18 +1,44 @@
 import type { Request, Response } from 'express';
-import path from 'path';
 import { generateAccessToken } from '../services/authService';
+import { signUp, confirmSignUp } from '../services/authService';
 import { updatePreferences } from '../repositories/preferencesRepository';
 import { getGifs } from '../services/gifService';
 import { getPreferences } from '../services/preferencesService';
+import { generateGifUrl } from '../services/awsService';
+
+export const signUpGet = (req: Request, res: Response) => {
+   res.render("signup");
+}
+
+export const signUpPost = async (req: Request, res: Response) => {
+   const { email, password } = req.body;
+
+   await signUp(email, password);
+
+   res.redirect(`/confirm?email=${encodeURIComponent(email)}`);
+}
+
+export const confirmGet = (req: Request, res: Response) => {
+   const { email } = req.query;
+    res.render('confirm', { email });
+}
+
+export const confirmPost = async (req: Request, res: Response) => {
+   const { email, code } = req.body;
+
+   await confirmSignUp(email, code);
+
+   res.redirect("/");
+}
 
 export const loginGet = (req: Request, res: Response) => {
    res.render("login");
 }
 
-export const loginPost = (req: Request, res: Response) => {
+export const loginPost = async (req: Request, res: Response) => {
    const { email, password } = req.body;
 
-   const token = generateAccessToken(email, password);
+   const token = await generateAccessToken(email, password);
 
    if (!token) {
       return res.sendStatus(401);
@@ -93,14 +119,8 @@ export const profilePost = async (req: Request, res: Response) => {
 }
 
 export const gif = async (req: Request, res: Response) => {
-   const gifName = req.params.gifName;
+   const gifId = req.params.gifId as string;
 
-   const gifPath = path.join(__dirname, '..', '..', 'gifs', `${gifName}`);
-
-   res.sendFile(gifPath, (err) => {
-       if (err) {
-           console.error('Error serving the gif file', err);
-           res.status(500).json({ error: 'Failed to serve the gif file' });
-       }
-   });
+   const preSignedUrl = await generateGifUrl(gifId);
+   res.redirect(preSignedUrl);
 }

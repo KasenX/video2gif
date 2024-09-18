@@ -1,6 +1,6 @@
 import { createPreferences as createPreferencesDB, findPreferences } from '../repositories/preferencesRepository';
 
-export const getPreferences = async (userId: number) => {
+export const getPreferences = async (userId: string) => {
     const preferences = await findPreferences(userId);
 
     // User does not have preferences yet, create them
@@ -18,7 +18,7 @@ export const getPreferences = async (userId: number) => {
     return preferences;
 }
 
-const createPreferences = async (userId: number) => {
+const createPreferences = async (userId: string) => {
     await createPreferencesDB(userId, {
         user_id: userId,
         fps: 10,

@@ -5,7 +5,9 @@ import { getVideo, checkVideoOwnership, getVideos, uploadVideo, convertVideo } f
 
 const router = express.Router();
 
-router.use(fileUpload());
+router.use(fileUpload({
+    useTempFiles: true
+}));
 
 router.get('/:videoId', authenticateToken, checkVideoOwnership, getVideo);
 

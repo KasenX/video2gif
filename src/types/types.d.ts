@@ -1,13 +1,19 @@
 import { JwtPayload } from "jsonwebtoken";
 
 export interface User {
-    id: number;
+    id: string;
     email: string;
-    password: string;
 }
 
-export interface JWTUserPayload extends JwtPayload {
-    user: User;
+export interface AWSSecrets {
+    dbUser: string,
+    dbPassword: string,
+}
+
+export interface AWSParameters {
+    url: string;
+    dbHost: string;
+    dbName: string;
 }
 
 export interface VideoConversionBody {

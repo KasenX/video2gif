@@ -5,10 +5,11 @@ import { v4 as uuidv4, validate } from 'uuid';
 import path from 'path';
 import fs from 'fs';
 import ffmpeg from 'fluent-ffmpeg';
-import { db } from '../db/connection';
+import { getDb } from '../db/connection';
 import { createVideo, findVideo, findVideos } from '../repositories/videoRepository';
 import { createGif, updateGif } from '../repositories/gifRepository';
 import { getPreferences } from '../services/preferencesService';
+import { generateVideoUrl, storeVideoFile, uploadGifFile, uploadVideoFile } from '../services/awsService';
 
 const supportedVideoFormats = [
     'mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'm4v', 'ogg'
@@ -42,21 +43,15 @@ export const checkVideoOwnership = async (req: Request, res: Response, next: Nex
     }
 }
 
-export const getVideo = (req: Request, res: Response) => {
+export const getVideo = async (req: Request, res: Response) => {
     const video = req.video;
 
     if (!video) {
         return res.status(400).json({ error: 'Failed to find the video file' });
     }
 
-    const videoPath = path.join(__dirname, '..', '..', 'videos', `${video.id}${video.extension}`);
-
-    res.sendFile(videoPath, (err) => {
-        if (err) {
-            console.error('Error serving the video file', err);
-            res.status(500).json({ error: 'Failed to serve the video file' });
-        }
-    });
+    const preSignedUrl = await generateVideoUrl(video.id, video.extension);
+    res.redirect(preSignedUrl);
 }
 
 export const getVideos = async (req: Request, res: Response) => {
@@ -83,22 +78,20 @@ function validateFileUpload(req: Request): fileUpload.UploadedFile | null {
     return req.files.file as fileUpload.UploadedFile;
 }
 
-function moveVideoFile(file: fileUpload.UploadedFile, uniqueFileName: string): Promise<void> {
-    const filePath = path.join(__dirname, '..', '..', 'videos', uniqueFileName);
-    
-    return new Promise((resolve, reject) => {
-        file.mv(filePath, (err) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve();
-        });
-    });
-}
-
 function isVideoFormatSupported(file: fileUpload.UploadedFile): boolean {
     const fileExtension = path.extname(file.name).slice(1);
     return !supportedVideoFormats.includes(fileExtension);
+}
+
+function getVideoDuration(videoPath: string): Promise<number | undefined> {
+    return new Promise((resolve, reject) => {
+        ffmpeg.ffprobe(videoPath, (err, metadata) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(metadata.format.duration);
+        });
+    });
 }
 
 export const uploadVideo = async (req: Request, res: Response) => {
@@ -111,28 +104,33 @@ export const uploadVideo = async (req: Request, res: Response) => {
     }
 
     const fileName = path.parse(file.name).name;
-    const fileExtension = path.extname(file.name);
+    const fileExtension = path.extname(file.name).slice(1);
     const videoId = uuidv4();
     const userId = req.user?.id;
+    const duration = await getVideoDuration(file.tempFilePath);
+
+    if (!duration) {
+        return res.status(400).json({ error: 'Failed to get video duration' });
+    }
 
     if (!userId) {
         return res.status(400).json({ error: 'Failed to find the user' });
     }
 
     try {
-        const uniqueFileName = `${videoId}${fileExtension}`;
 
-        await db.transaction().execute(async (trx) => {
+        await getDb().transaction().execute(async (trx) => {
             await createVideo(trx, {
                 id: videoId,
                 user_id: userId,
                 name: fileName,
                 extension: fileExtension,
+                duration: duration,
                 size: file.size,
                 uploaded: new Date()
             });
 
-            await moveVideoFile(file, uniqueFileName);
+            await uploadVideoFile(file.tempFilePath, videoId, fileExtension);
         });
 
         const videoUrl = `${req.protocol}://${req.get('host')}/api/videos/${videoId}`;
@@ -142,12 +140,12 @@ export const uploadVideo = async (req: Request, res: Response) => {
             location: videoUrl,
         });
     } catch (err) {
-        console.error('Error during video upload:', err);
+        console.error('Error during video upload', err);
         res.status(500).json({ error: 'Failed to upload video' });
     }
 };
 
-async function resolveSettings(body: VideoConversionBody, userId: number): Promise<VideoConversionBody> {
+async function resolveSettings(body: VideoConversionBody, userId: string): Promise<VideoConversionBody> {
     const preferences = await getPreferences(userId);
     const settings: VideoConversionBody = {};
 
@@ -158,17 +156,6 @@ async function resolveSettings(body: VideoConversionBody, userId: number): Promi
     settings.duration = body.duration;
 
     return settings;
-}
-
-function getVideoDuration(videoPath: string): Promise<number | undefined> {
-    return new Promise((resolve, reject) => {
-        ffmpeg.ffprobe(videoPath, (err, metadata) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve(metadata.format.duration);
-        });
-    });
 }
 
 function validateSettings(settings: VideoConversionBody, videoDuration: number): boolean {
@@ -216,12 +203,9 @@ export const convertVideo = async (req: Request, res: Response) => {
     }
 
     const settings = await resolveSettings(body, userId);
-    const videoPath = path.join(__dirname, '..', '..', 'videos', `${video.id}${video.extension}`);
 
     try {
-        const videoDuration = await getVideoDuration(videoPath);
-
-        if (!validateSettings(settings, videoDuration!)) {
+        if (!validateSettings(settings, video.duration)) {
             return res.status(400).json({ error: 'Invalid conversion settings' });
         }
 
@@ -230,7 +214,7 @@ export const convertVideo = async (req: Request, res: Response) => {
             user_id: userId,
             video_id: video.id,
             name: video.name,
-            extension: '.gif',
+            extension: 'gif',
             size: -1,
             status: 'in_progress',
             created: new Date(),
@@ -248,33 +232,42 @@ export const convertVideo = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Error during conversion initiation' });
     }
 
-    convertVideoToGif(videoPath, gifId, settings);
+    await convertVideoToGif(video.id, video.extension, gifId, settings);
 };
 
-const convertVideoToGif = (videoPath: string, gifId: string, settings: VideoConversionBody) => {
+const convertVideoToGif = async (videoId: string, videoExtension: string, gifId: string, settings: VideoConversionBody) => {
+    // Temporary store the video file locally
+    const videoPath = await storeVideoFile(videoId, videoExtension);
     const gifPath = path.join(__dirname, '..', '..', 'gifs', `${gifId}.gif`);
 
     try {
         const ffmpegCommmand = ffmpeg(videoPath)
-        .setStartTime(settings.startTime!)
-        .outputOptions([
-            '-vf', `fps=${settings.fps},scale=${settings.scale_x}:${settings.scale_y}:flags=lanczos`
-        ]);
+            .setStartTime(settings.startTime!)
+            .outputOptions([
+                '-vf', `fps=${settings.fps},scale=${settings.scale_x}:${settings.scale_y}:flags=lanczos`
+            ]);
 
         if (settings.duration) {
             ffmpegCommmand.duration(settings.duration);
         }
 
         ffmpegCommmand
-        .on('end', () => {
-            updateGif(gifId, {
+        .on('end', async () => {
+            // Upload the gif file to S3
+            await uploadGifFile(gifPath, gifId);
+
+            await updateGif(gifId, {
                 size: fs.statSync(gifPath).size,
                 status: 'completed',
                 completed: new Date(),
             });
+
+            // Delete the video and gif file from the local file system
+            fs.unlinkSync(videoPath);
+            fs.unlinkSync(gifPath);
         })
-        .on('error', (err) => {
-            updateGif(gifId, {
+        .on('error', async (err) => {
+            await updateGif(gifId, {
                 status: 'failed',
                 completed: new Date()
             });

@@ -1,27 +1,72 @@
-import jwt from 'jsonwebtoken';
-import { JWTUserPayload } from '../types/types';
+import { 
+    CognitoIdentityProviderClient,
+    SignUpCommand,
+    ConfirmSignUpCommand,
+    InitiateAuthCommand,
+} from '@aws-sdk/client-cognito-identity-provider';
+import { CognitoJwtVerifier } from 'aws-jwt-verify';
+import { User } from '../types/types';
 
-const secretKey = process.env.AUTH_SECRET_KEY as string;
-// TODO: implement user service
-const users = [
-    { id: 1, email: 'user@example.com', password: 'password123' },
-    { id: 2, email: 'kuba.rone@gmail.com', password: '12345' }
-];
+const userPoolId = 'ap-southeast-2_aV7Yy8hyg'
+const clientId = '2m3luc6efvd7l8gml8tv4gtnt1'
 
-export const generateAccessToken = (email: string, password: string): string | false => {
-    const user = users.find(u => u.email === email && u.password === password);
+const idVerifier = CognitoJwtVerifier.create({
+    userPoolId: userPoolId,
+    tokenUse: 'id',
+    clientId: clientId
+});
 
-    if (!user) {
-        return false;
-    }
-
-    return jwt.sign({ user }, secretKey, { expiresIn: '1h' });
-}
-
-export const authenticateToken = (token: string): JWTUserPayload | false => {
+export const authenticateToken = async (token: string): Promise<User | false> => {
     try {
-        return jwt.verify(token, secretKey) as JWTUserPayload;
-    } catch (error) {
+        const idToken = await idVerifier.verify(token);
+
+        return {
+            id: idToken.sub,
+            email: idToken.email as string
+        }
+    }
+    // Authentication failed
+    catch (e) {
         return false;
     }
 };
+
+export const generateAccessToken = async (email: string, password: string): Promise<string | false> => {
+    try {
+        const client = new CognitoIdentityProviderClient({ region: 'ap-southeast-2'});
+        const command = new InitiateAuthCommand({
+            AuthFlow: 'USER_PASSWORD_AUTH',
+            AuthParameters: {
+                USERNAME: email,
+                PASSWORD: password
+            },
+            ClientId: clientId
+        });
+        const res = await client.send(command);
+        return res.AuthenticationResult?.IdToken ?? false;
+    } 
+    // Authentication failed
+    catch (e) {
+        return false;
+    }
+}
+
+export const signUp = async (email: string, password: string): Promise<void> => {
+    const client = new CognitoIdentityProviderClient({ region: 'ap-southeast-2'});
+    const command = new SignUpCommand({
+        ClientId: clientId,
+        Username: email,
+        Password: password
+    });
+    await client.send(command);
+}
+
+export const confirmSignUp = async (email: string, code: string): Promise<void> => {
+    const client = new CognitoIdentityProviderClient({ region: 'ap-southeast-2'});
+    const command = new ConfirmSignUpCommand({
+        ClientId: clientId,
+        Username: email,
+        ConfirmationCode: code
+    });
+    await client.send(command);
+}

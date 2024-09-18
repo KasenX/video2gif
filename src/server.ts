@@ -5,6 +5,8 @@ import videoRoutes from './routes/video';
 import gifRoutes from './routes/gif';
 import preferencesRoutes from './routes/preferences';
 import webClientRoutes from './routes/webClient';
+import { getSecrets, getParameters } from './services/awsService';
+import { initializeDb } from './db/connection';
 
 const app = express();
 const port = 3000;
@@ -22,6 +24,24 @@ app.use('/api/preferences', preferencesRoutes);
 
 app.use('/', webClientRoutes);
 
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+async function startServer() {
+    try {
+        const credentials = await getSecrets();
+        const parameters = await getParameters();
+        
+        process.env.DB_USER = credentials.dbUser;
+        process.env.DB_PASSWORD = credentials.dbPassword;
+        process.env.DB_HOST = parameters.dbHost;
+        process.env.DB_NAME = parameters.dbName;
+
+        initializeDb();
+
+        app.listen(port, () => {
+            console.log(`Server is running on url: http://${parameters.url}:${port}`);
+        });
+    } catch (error) {
+        console.error('Error starting the server', error);
+    }
+}
+
+startServer();
