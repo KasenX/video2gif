@@ -152,7 +152,6 @@ export const generateGifUrl = async (gifId: string): Promise<string> => {
 }
 
 export const storeVideoFile = async (videoId: string, videoExtension: string): Promise<string> => {
-    const pipelineAsync = promisify(pipeline);
     const tempVideoPath = path.join(__dirname, '..', '..', 'videos', `${videoId}.${videoExtension}`);
     
     try {
