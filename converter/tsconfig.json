@@ -21,8 +21,13 @@
         "isolatedModules": true,                     // Prevents a few TS features which are unsafe when treating modules as isolated files
         "importHelpers": true,                       // Import helper functions from tslib
         "types": ["node"],                           // Include type definitions for Node.js
-        "typeRoots": ["./node_modules/@types"]
+        "typeRoots": ["./node_modules/@types", "src/types"]
     },
+    "include": [
+        "src/*.ts",
+        "src/**/*.ts",
+        "src/*.d.ts"
+    ],
     "exclude": [
         "node_modules",
         "dist"
