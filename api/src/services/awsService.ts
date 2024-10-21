@@ -11,12 +11,6 @@ const secretClient = new SecretsManagerClient({
     region: "ap-southeast-2",
 });
 
-const bucketName = 'n12134171-assessment';
-const s3Client = new S3Client({ region: 'ap-southeast-2' });
-
-const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/901444280953/n12134171-video2gif';
-const sqsClient = new SQSClient({ region: 'ap-southeast-2' });
-
 export const getSecrets = async (): Promise<AWSSecrets> => {
     try {
         const response = await secretClient.send(
@@ -83,6 +77,9 @@ export const getParameters = async (): Promise<AWSParameters> => {
     }
 }
 
+const bucketName = 'n12134171-assessment';
+const s3Client = new S3Client({ region: 'ap-southeast-2' });
+
 export const uploadVideoFile = async (filePath: string, videoId: string, videoExtension: string): Promise<void> => {
     try {
         // Read the file from the local file system
@@ -131,6 +128,9 @@ export const generateGifUrl = async (gifId: string): Promise<string> => {
         throw err;
     }
 }
+
+const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/901444280953/n12134171-video2gif';
+const sqsClient = new SQSClient({ region: 'ap-southeast-2' });
 
 export const sendToQueue = async (gifId: string): Promise<void> => {
     const command = new SendMessageCommand({
