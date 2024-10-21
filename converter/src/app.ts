@@ -1,4 +1,5 @@
 import { SQSClient, ReceiveMessageCommand, DeleteMessageCommand } from '@aws-sdk/client-sqs';
+import { getSecrets, getParameters } from './aws';
 import { initializeDb } from './db/connection';
 import { processConvertRequest } from './service';
 
@@ -6,7 +7,15 @@ const client = new SQSClient({ region: 'ap-southeast-2' });
 const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/901444280953/n12134171-video2gif';
 
 const main = async () => {
-    initializeDb();
+    try {
+        const credentials = await getSecrets();
+        const parameters = await getParameters();
+
+        initializeDb(parameters.dbHost, parameters.dbName, credentials.dbUser, credentials.dbPassword);
+    } catch (error) {
+        console.error('Error initializing the converter', error);
+        return;
+    }
 
     while (true) {
         const receiveCommand = new ReceiveMessageCommand({

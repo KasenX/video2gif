@@ -4,16 +4,16 @@ import { Database } from './schema';
 
 let db: Kysely<Database> | undefined;
 
-export const initializeDb = () => {
+export const initializeDb = (host: string, name: string, user: string, password: string) => {
     if (db) return;
 
     const dialect = new PostgresDialect({
         pool: new Pool({
-            host: '',
+            host: host,
             port: 5432,
-            database: '',
-            user: '',
-            password: '',
+            database: name,
+            user: user,
+            password: password,
             max: 10,
             ssl: {
                 rejectUnauthorized: false

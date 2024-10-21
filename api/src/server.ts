@@ -28,13 +28,8 @@ async function startServer() {
     try {
         const credentials = await getSecrets();
         const parameters = await getParameters();
-        
-        process.env.DB_USER = credentials.dbUser;
-        process.env.DB_PASSWORD = credentials.dbPassword;
-        process.env.DB_HOST = parameters.dbHost;
-        process.env.DB_NAME = parameters.dbName;
 
-        initializeDb();
+        initializeDb(parameters.dbHost, parameters.dbName, credentials.dbUser, credentials.dbPassword);
 
         app.listen(port, () => {
             console.log(`Server is running on url: http://${parameters.url}:${port}`);
