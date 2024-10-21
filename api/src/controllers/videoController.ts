@@ -3,13 +3,12 @@ import type { VideoConversionBody } from '../types/types';
 import fileUpload from 'express-fileupload';
 import { v4 as uuidv4, validate } from 'uuid';
 import path from 'path';
-import fs from 'fs';
 import ffmpeg from 'fluent-ffmpeg';
 import { getDb } from '../db/connection';
 import { createVideo, findVideo, findVideos } from '../repositories/videoRepository';
-import { createGif, updateGif } from '../repositories/gifRepository';
+import { createGif } from '../repositories/gifRepository';
 import { getPreferences } from '../services/preferencesService';
-import { generateVideoUrl, storeVideoFile, uploadGifFile, uploadVideoFile } from '../services/awsService';
+import { generateVideoUrl, uploadVideoFile, sendToQueue } from '../services/awsService';
 
 const supportedVideoFormats = [
     'mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'm4v', 'ogg'
@@ -216,6 +215,11 @@ export const convertVideo = async (req: Request, res: Response) => {
             name: video.name,
             extension: 'gif',
             size: -1,
+            fps: settings.fps!,
+            scale_x: settings.scale_x!,
+            scale_y: settings.scale_y!,
+            startTime: settings.startTime!,
+            duration: settings.duration,
             status: 'in_progress',
             created: new Date(),
             completed: null
@@ -232,49 +236,8 @@ export const convertVideo = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Error during conversion initiation' });
     }
 
-    await convertVideoToGif(video.id, video.extension, gifId, settings);
+    // Send the gifId to the SQS queue for processing
+    await sendToQueue(gifId);
 };
 
-const convertVideoToGif = async (videoId: string, videoExtension: string, gifId: string, settings: VideoConversionBody) => {
-    // Temporary store the video file locally
-    const videoPath = await storeVideoFile(videoId, videoExtension);
-    const gifPath = path.join(__dirname, '..', '..', 'gifs', `${gifId}.gif`);
 
-    try {
-        const ffmpegCommmand = ffmpeg(videoPath)
-            .setStartTime(settings.startTime!)
-            .outputOptions([
-                '-vf', `fps=${settings.fps},scale=${settings.scale_x}:${settings.scale_y}:flags=lanczos`
-            ]);
-
-        if (settings.duration) {
-            ffmpegCommmand.duration(settings.duration);
-        }
-
-        ffmpegCommmand
-        .on('end', async () => {
-            // Upload the gif file to S3
-            await uploadGifFile(gifPath, gifId);
-
-            await updateGif(gifId, {
-                size: fs.statSync(gifPath).size,
-                status: 'completed',
-                completed: new Date(),
-            });
-
-            // Delete the video and gif file from the local file system
-            fs.unlinkSync(videoPath);
-            fs.unlinkSync(gifPath);
-        })
-        .on('error', async (err) => {
-            await updateGif(gifId, {
-                status: 'failed',
-                completed: new Date()
-            });
-            console.error('Error during conversion', err);
-        })
-        .save(gifPath);
-    } catch (err) {
-        console.error('Unexpected error during conversion', err);
-    }
-};

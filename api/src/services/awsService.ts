@@ -1,14 +1,11 @@
-import { createReadStream, createWriteStream } from 'fs';
-import path from 'path';
-import { pipeline } from 'stream';
-import { promisify } from 'util';
+import { createReadStream } from 'fs';
 import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 import { SSMClient, GetParametersCommand } from "@aws-sdk/client-ssm";
 import type { AWSSecrets, AWSParameters } from "../types/types";
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 
-const pipelineAsync = promisify(pipeline);
 const rdsSecretName = "rds!db-66386ae9-73e6-4fa5-b606-04437acebac0";
 const secretClient = new SecretsManagerClient({
     region: "ap-southeast-2",
@@ -16,6 +13,9 @@ const secretClient = new SecretsManagerClient({
 
 const bucketName = 'n12134171-assessment';
 const s3Client = new S3Client({ region: 'ap-southeast-2' });
+
+const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/901444280953/n12134171-video2gif';
+const sqsClient = new SQSClient({ region: 'ap-southeast-2' });
 
 export const getSecrets = async (): Promise<AWSSecrets> => {
     try {
@@ -102,25 +102,6 @@ export const uploadVideoFile = async (filePath: string, videoId: string, videoEx
     }
 }
 
-export const uploadGifFile = async (filePath: string, gifId: string): Promise<void> => {
-    try {
-        // Read the file from the local file system
-        const fileStream = createReadStream(filePath);
-
-        const command = new PutObjectCommand({
-            Bucket: bucketName,
-            Key: `gifs/${gifId}.gif`,
-            Body: fileStream,
-            ContentType: 'image/gif',
-        });
-
-        await s3Client.send(command);
-    } catch (err) {
-        console.error('Error uploading file to S3', err);
-        throw err;
-    }
-}
-
 export const generateVideoUrl = async (videoId: string, videoExtension: string): Promise<string> => {
     try {
         const command = new GetObjectCommand({
@@ -151,26 +132,11 @@ export const generateGifUrl = async (gifId: string): Promise<string> => {
     }
 }
 
-export const storeVideoFile = async (videoId: string, videoExtension: string): Promise<string> => {
-    const tempVideoPath = path.join(__dirname, '..', '..', 'videos', `${videoId}.${videoExtension}`);
-    
-    try {
-        const command = new GetObjectCommand({
-            Bucket: bucketName,
-            Key: `videos/${videoId}.${videoExtension}`,
-        });
-        
-        const { Body } = await s3Client.send(command);
+export const sendToQueue = async (gifId: string): Promise<void> => {
+    const command = new SendMessageCommand({
+        QueueUrl: queueUrl,
+        MessageBody: gifId
+    });
 
-        if (!Body) {
-            throw new Error('Failed to retrieve video file from S3');
-        }
-
-        await pipelineAsync(Body as NodeJS.ReadableStream, createWriteStream(tempVideoPath));
-        
-        return tempVideoPath;
-    } catch (err) {
-        console.error('Error storing video file', err);
-        throw err;
-    }
+    await sqsClient.send(command);
 }

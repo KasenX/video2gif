@@ -1,0 +1,36 @@
+{
+  "name": "video2gif-converter",
+  "version": "1.0.0",
+  "main": "dist/app.js",
+  "scripts": {
+    "start": "node dist/src/app.js",
+    "build": "tsc && npm run create-dirs",
+    "create-dirs": "mkdir -p -m 777 dist/videos dist/gifs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KasenX/video2gif.git"
+  },
+  "author": "Jakub Janecek",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/KasenX/video2gif/issues"
+  },
+  "homepage": "https://github.com/KasenX/video2gif#readme",
+  "description": "",
+  "devDependencies": {
+    "@types/fluent-ffmpeg": "^2.1.26",
+    "@types/node": "^22.7.6",
+    "@types/pg": "^8.11.10",
+    "globals": "^15.11.0",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.673.0",
+    "@aws-sdk/client-sqs": "^3.670.0",
+    "fluent-ffmpeg": "^2.1.3",
+    "kysely": "^0.27.4",
+    "pg": "^8.13.0"
+  }
+}

@@ -17,6 +17,11 @@ CREATE TABLE "gif" (
     "name" VARCHAR(255) NOT NULL,
     "extension" VARCHAR(255) NOT NULL,
     "size" BIGINT NOT NULL,
+    "fps" INTEGER NOT NULL,
+    "scale_x" INTEGER NOT NULL,
+    "scale_y" INTEGER NOT NULL,
+    "startTime" DECIMAL NOT NULL,
+    "duration" DECIMAL,
     "status" gif_status NOT NULL,
     "created" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "completed" TIMESTAMP
