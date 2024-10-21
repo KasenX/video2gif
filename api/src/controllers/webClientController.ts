@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import { generateAccessToken } from '../services/authService';
 import { signUp, confirmSignUp } from '../services/authService';
 import { updatePreferences } from '../repositories/preferencesRepository';
-import { getGifs } from '../services/gifService';
+import { getCompletedGifs } from '../services/gifService';
 import { getPreferences } from '../services/preferencesService';
 import { generateGifUrl } from '../services/awsService';
 
@@ -80,7 +80,7 @@ export const gallery = async (req: Request, res: Response) => {
       return res.sendStatus(500);
    }
 
-   const gifs = await getGifs(req.user.id);
+   const gifs = await getCompletedGifs(req.user.id);
 
    res.render("gallery", {
       gifs: gifs,
