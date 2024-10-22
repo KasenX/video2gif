@@ -1,10 +1,10 @@
 import { createReadStream } from 'fs';
 import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 import { SSMClient, GetParametersCommand } from "@aws-sdk/client-ssm";
-import type { AWSSecrets, AWSParameters } from "../types/types";
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+import type { AWSSecrets, AWSParameters } from "../types/types";
 
 const rdsSecretName = "rds!db-66386ae9-73e6-4fa5-b606-04437acebac0";
 const secretClient = new SecretsManagerClient({

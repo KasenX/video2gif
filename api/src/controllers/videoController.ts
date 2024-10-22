@@ -1,5 +1,4 @@
 import type { Request, Response, NextFunction } from 'express';
-import type { VideoConversionBody } from '../types/types';
 import fileUpload from 'express-fileupload';
 import { v4 as uuidv4, validate } from 'uuid';
 import path from 'path';
@@ -9,6 +8,7 @@ import { createVideo, findVideo, findVideos } from '../repositories/videoReposit
 import { createGif } from '../repositories/gifRepository';
 import { getPreferences } from '../services/preferencesService';
 import { generateVideoUrl, uploadVideoFile, sendToQueue } from '../services/awsService';
+import type { VideoConversionBody } from '../types/types';
 
 const supportedVideoFormats = [
     'mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'm4v', 'ogg'
@@ -70,19 +70,19 @@ export const getVideos = async (req: Request, res: Response) => {
     }
 };
 
-function validateFileUpload(req: Request): fileUpload.UploadedFile | null {
+const validateFileUpload = (req: Request): fileUpload.UploadedFile | null => {
     if (!req.files || !req.files.file) {
         return null;
     }
     return req.files.file as fileUpload.UploadedFile;
 }
 
-function isVideoFormatSupported(file: fileUpload.UploadedFile): boolean {
+const isVideoFormatSupported = (file: fileUpload.UploadedFile): boolean => {
     const fileExtension = path.extname(file.name).slice(1);
     return !supportedVideoFormats.includes(fileExtension);
 }
 
-function getVideoDuration(videoPath: string): Promise<number | undefined> {
+const getVideoDuration = (videoPath: string): Promise<number | undefined> => {
     return new Promise((resolve, reject) => {
         ffmpeg.ffprobe(videoPath, (err, metadata) => {
             if (err) {
@@ -144,7 +144,7 @@ export const uploadVideo = async (req: Request, res: Response) => {
     }
 };
 
-async function resolveSettings(body: VideoConversionBody, userId: string): Promise<VideoConversionBody> {
+const resolveSettings = async (body: VideoConversionBody, userId: string): Promise<VideoConversionBody> => {
     const preferences = await getPreferences(userId);
     const settings: VideoConversionBody = {};
 
@@ -157,7 +157,7 @@ async function resolveSettings(body: VideoConversionBody, userId: string): Promi
     return settings;
 }
 
-function validateSettings(settings: VideoConversionBody, videoDuration: number): boolean {
+const validateSettings = (settings: VideoConversionBody, videoDuration: number): boolean => {
     if (typeof settings.fps !== 'number' || settings.fps <= 0) {
         return false;
     }
@@ -239,5 +239,3 @@ export const convertVideo = async (req: Request, res: Response) => {
     // Send the gifId to the SQS queue for processing
     await sendToQueue(gifId);
 };
-
-

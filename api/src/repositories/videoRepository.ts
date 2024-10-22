@@ -1,8 +1,8 @@
+import type { Transaction } from 'kysely';
 import { getDb } from '../db/connection';
 import type { Database, NewVideo, Video } from '../db/schema';
-import type { Transaction } from 'kysely';
 
-export async function findVideo(videoId: string, userId: string): Promise<Video | undefined> {
+export const findVideo = async (videoId: string, userId: string): Promise<Video | undefined> => {
     return await getDb().selectFrom('video')
     .selectAll()
     .where('id', '=', videoId)
@@ -10,14 +10,14 @@ export async function findVideo(videoId: string, userId: string): Promise<Video 
     .executeTakeFirst();
 }
 
-export async function findVideos(userId: string): Promise<Video[]> {
+export const findVideos = async (userId: string): Promise<Video[]> => {
     return await getDb().selectFrom('video')
     .selectAll()
     .where('user_id', '=', userId)
     .execute();
 }
 
-export async function createVideo(trx: Transaction<Database>, video: NewVideo): Promise<Video> {
+export const createVideo = async (trx: Transaction<Database>, video: NewVideo): Promise<Video> => {
     return await trx.insertInto('video')
     .values(video)
     .returningAll()

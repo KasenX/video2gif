@@ -24,7 +24,7 @@ app.use('/api/preferences', preferencesRoutes);
 
 app.use('/', webClientRoutes);
 
-async function startServer() {
+const startServer = async () => {
     try {
         const credentials = await getSecrets();
         const parameters = await getParameters();
