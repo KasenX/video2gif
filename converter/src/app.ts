@@ -38,6 +38,8 @@ const receiveMessage = async () => {
 }
 
 const main = async () => {
+    console.log('Initializing the converter');
+
     try {
         const credentials = await getSecrets();
         const parameters = await getParameters();
@@ -47,6 +49,8 @@ const main = async () => {
         console.error('Error initializing the converter', error);
         return;
     }
+    
+    console.log('Converter initialized');
 
     while (true) {
         await receiveMessage();
