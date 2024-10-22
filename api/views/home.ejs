@@ -75,12 +75,12 @@
           <div class="flex space-x-4">
             <div class="w-1/2">
               <label for="scale-x" class="block text-sm font-medium text-gray-700">Scale X</label>
-              <input type="text" id="scale-x" name="scale_x" value="<%= scale_x %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="e.g. 320 or Auto">
+              <input type="text" id="scale-x" name="scaleX" value="<%= scaleX %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="e.g. 320 or Auto">
               <p id="scale-x-error" class="text-red-500 text-sm mt-1 hidden">Invalid Scale X value. Please enter a positive integer or "Auto".</p>
             </div>
             <div class="w-1/2">
               <label for="scale-y" class="block text-sm font-medium text-gray-700">Scale Y</label>
-              <input type="text" id="scale-y" name="scale_y" value="<%= scale_y %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="e.g. 240 or Auto">
+              <input type="text" id="scale-y" name="scaleY" value="<%= scaleY %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="e.g. 240 or Auto">
               <p id="scale-y-error" class="text-red-500 text-sm mt-1 hidden">Invalid Scale Y value. Please enter a positive integer or "Auto".</p>
             </div>
           </div>
@@ -240,8 +240,8 @@
             },
             body: JSON.stringify({
               fps: parseInt(fps),
-              scale_x: scaleX === 'Auto' ? -1 : parseInt(scaleX),
-              scale_y: scaleY === 'Auto' ? -1 : parseInt(scaleY),
+              scaleX: scaleX === 'Auto' ? -1 : parseInt(scaleX),
+              scaleY: scaleY === 'Auto' ? -1 : parseInt(scaleY),
               startTime: parseFloat(startTime),
               duration: parseFloat(duration)
             })

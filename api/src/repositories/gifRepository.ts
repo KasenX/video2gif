@@ -5,14 +5,14 @@ export const findGif = async (gifId: string, userId: string): Promise<Gif | unde
     return await getDb().selectFrom('gif')
     .selectAll()
     .where('id', '=', gifId)
-    .where('user_id', '=', userId)
+    .where('userId', '=', userId)
     .executeTakeFirst();
 }
 
 export const findGifs = async (userId: string): Promise<Gif[]> => {
     return await getDb().selectFrom('gif')
     .selectAll()
-    .where('user_id', '=', userId)
+    .where('userId', '=', userId)
     .execute();
 }
 

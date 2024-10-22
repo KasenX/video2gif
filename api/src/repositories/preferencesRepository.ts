@@ -4,7 +4,7 @@ import type { Preferences, NewPreferences, PreferencesUpdate } from '../db/schem
 export const findPreferences = async (userId: string): Promise<Preferences | undefined> => {
     return await getDb().selectFrom('preferences')
     .selectAll()
-    .where('user_id', '=', userId)
+    .where('userId', '=', userId)
     .executeTakeFirst();
 }
 
@@ -18,7 +18,7 @@ export const createPreferences = async (userId: string, preferences: NewPreferen
 export const updatePreferences = async (userId: string, preferences: Partial<PreferencesUpdate>): Promise<Preferences> => {
     return await getDb().updateTable('preferences')
     .set(preferences)
-    .where('user_id', '=', userId)
+    .where('userId', '=', userId)
     .returningAll()
     .executeTakeFirstOrThrow();
 }

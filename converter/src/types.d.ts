@@ -16,8 +16,8 @@ export interface AWSParameters {
 
 export interface VideoConversionBody {
     fps?: number;
-    scale_x?: number;
-    scale_y?: number;
+    scaleX?: number;
+    scaleY?: number;
     startTime?: number;
     duration?: number;
 }

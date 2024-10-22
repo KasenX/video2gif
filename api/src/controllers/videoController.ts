@@ -121,7 +121,7 @@ export const uploadVideo = async (req: Request, res: Response) => {
         await getDb().transaction().execute(async (trx) => {
             await createVideo(trx, {
                 id: videoId,
-                user_id: userId,
+                userId: userId,
                 name: fileName,
                 extension: fileExtension,
                 duration: duration,
@@ -149,8 +149,8 @@ const resolveSettings = async (body: VideoConversionBody, userId: string): Promi
     const settings: VideoConversionBody = {};
 
     settings.fps = body.fps || preferences?.fps || 10;
-    settings.scale_x = body.scale_x || preferences?.scale_x || 320;
-    settings.scale_y = body.scale_y || preferences?.scale_y || -1;
+    settings.scaleX = body.scaleX || preferences?.scaleX || 320;
+    settings.scaleY = body.scaleY || preferences?.scaleY || -1;
     settings.startTime = body.startTime || 0;
     settings.duration = body.duration;
 
@@ -162,11 +162,11 @@ const validateSettings = (settings: VideoConversionBody, videoDuration: number):
         return false;
     }
 
-    if (typeof settings.scale_x !== 'number' || (settings.scale_x <= 0 && settings.scale_x !== -1)) {
+    if (typeof settings.scaleX !== 'number' || (settings.scaleX <= 0 && settings.scaleX !== -1)) {
         return false;
     }
 
-    if (typeof settings.scale_y !== 'number' || (settings.scale_y <= 0 && settings.scale_y !== -1)) {
+    if (typeof settings.scaleY !== 'number' || (settings.scaleY <= 0 && settings.scaleY !== -1)) {
         return false;
     }
 
@@ -210,14 +210,14 @@ export const convertVideo = async (req: Request, res: Response) => {
 
         await createGif({
             id: gifId,
-            user_id: userId,
-            video_id: video.id,
+            userId: userId,
+            videoId: video.id,
             name: video.name,
             extension: 'gif',
             size: -1,
             fps: settings.fps!,
-            scale_x: settings.scale_x!,
-            scale_y: settings.scale_y!,
+            scaleX: settings.scaleX!,
+            scaleY: settings.scaleY!,
             startTime: settings.startTime!,
             duration: settings.duration,
             status: 'in_progress',

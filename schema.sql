@@ -1,6 +1,6 @@
 CREATE TABLE "video" (
     "id" UUID PRIMARY KEY,
-    "user_id" UUID NOT NULL,
+    "userId" UUID NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "extension" VARCHAR(255) NOT NULL,
     "duration" DECIMAL NOT NULL,
@@ -12,14 +12,14 @@ CREATE TYPE gif_status AS ENUM ('in_progress', 'completed', 'failed');
 
 CREATE TABLE "gif" (
     "id" UUID PRIMARY KEY,
-    "user_id" UUID NOT NULL,
-    "video_id" UUID NOT NULL REFERENCES "video"("id"),
+    "userId" UUID NOT NULL,
+    "videoId" UUID NOT NULL REFERENCES "video"("id"),
     "name" VARCHAR(255) NOT NULL,
     "extension" VARCHAR(255) NOT NULL,
     "size" BIGINT NOT NULL,
     "fps" INTEGER NOT NULL,
-    "scale_x" INTEGER NOT NULL,
-    "scale_y" INTEGER NOT NULL,
+    "scaleX" INTEGER NOT NULL,
+    "scaleY" INTEGER NOT NULL,
     "startTime" DECIMAL NOT NULL,
     "duration" DECIMAL,
     "status" gif_status NOT NULL,
@@ -28,9 +28,9 @@ CREATE TABLE "gif" (
 );
 
 CREATE TABLE "preferences" (
-    "user_id" UUID PRIMARY KEY,
+    "userId" UUID PRIMARY KEY,
     "fps" INTEGER NOT NULL,
-    "scale_x" INTEGER NOT NULL,
-    "scale_y" INTEGER NOT NULL,
+    "scaleX" INTEGER NOT NULL,
+    "scaleY" INTEGER NOT NULL,
     "updated" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

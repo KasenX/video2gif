@@ -13,7 +13,7 @@ export interface Database {
 
 export interface VideoTable {
     id: string,
-    user_id: string,
+    userId: string,
     name: string,
     extension: string,
     duration: number,
@@ -27,14 +27,14 @@ export type VideoUpdate = Updateable<VideoTable>;
 
 export interface GifTable {
     id: string,
-    user_id: string,
-    video_id: string,
+    userId: string,
+    videoId: string,
     name: string,
     extension: string,
     size: number,
     fps: number;
-    scale_x: number;
-    scale_y: number;
+    scaleX: number;
+    scaleY: number;
     startTime: number;
     duration?: number;
     status: 'in_progress' | 'completed' | 'failed',
@@ -47,10 +47,10 @@ export type NewGif = Insertable<GifTable>;
 export type GifUpdate = Updateable<GifTable>;
 
 export interface PreferencesTable {
-    user_id: string,
+    userId: string,
     fps: number,
-    scale_x: number,
-    scale_y: number,
+    scaleX: number,
+    scaleY: number,
     updated: ColumnType<Date, Date, Date>
 }
 

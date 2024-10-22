@@ -6,14 +6,14 @@ export const findVideo = async (videoId: string, userId: string): Promise<Video 
     return await getDb().selectFrom('video')
     .selectAll()
     .where('id', '=', videoId)
-    .where('user_id', '=', userId)
+    .where('userId', '=', userId)
     .executeTakeFirst();
 }
 
 export const findVideos = async (userId: string): Promise<Video[]> => {
     return await getDb().selectFrom('video')
     .selectAll()
-    .where('user_id', '=', userId)
+    .where('userId', '=', userId)
     .execute();
 }
 

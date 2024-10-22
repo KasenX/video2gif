@@ -67,8 +67,8 @@ export const home = async (req: Request, res: Response) => {
    res.render("home", {
       email: req.user.email,
       fps: preferences.fps,
-      scale_x: preferences.scale_x === -1 ? "Auto" : preferences.scale_x,
-      scale_y: preferences.scale_y === -1 ? "Auto" : preferences.scale_y,
+      scaleX: preferences.scaleX === -1 ? "Auto" : preferences.scaleX,
+      scaleY: preferences.scaleY === -1 ? "Auto" : preferences.scaleY,
       startTime: 0,
       duration: "",
       authToken: req.cookies.authToken,
@@ -97,8 +97,8 @@ export const profileGet = async (req: Request, res: Response) => {
    res.render("profile", {
       email: req.user.email,
       fps: preferences.fps,
-      scale_x: preferences.scale_x === -1 ? "Auto" : preferences.scale_x,
-      scale_y: preferences.scale_y === -1 ? "Auto" : preferences.scale_y,
+      scaleX: preferences.scaleX === -1 ? "Auto" : preferences.scaleX,
+      scaleY: preferences.scaleY === -1 ? "Auto" : preferences.scaleY,
    });
 }
 
@@ -107,12 +107,12 @@ export const profilePost = async (req: Request, res: Response) => {
       return res.sendStatus(500);
    }
 
-   const { fps, scale_x, scale_y } = req.body;
+   const { fps, scaleX, scaleY } = req.body;
 
    await updatePreferences(req.user.id, {
       fps: fps,
-      scale_x: scale_x === "Auto" ? -1 : scale_x,
-      scale_y: scale_y === "Auto" ? -1 : scale_y,
+      scaleX: scaleX === "Auto" ? -1 : scaleX,
+      scaleY: scaleY === "Auto" ? -1 : scaleY,
    });
 
    res.redirect("/");

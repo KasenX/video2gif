@@ -13,10 +13,10 @@ export const processConvertRequest = async (gifId: string) => {
         return;
     }
 
-    const video = await findVideo(gif.video_id);
+    const video = await findVideo(gif.videoId);
 
     if (!video) {
-        console.error(`Video with ID ${gif.video_id} not found`);
+        console.error(`Video with ID ${gif.videoId} not found`);
         return;
     }
 
@@ -32,7 +32,7 @@ const convertVideoToGif = async (gif: Gif, videoPath: string) => {
         const ffmpegCommmand = ffmpeg(videoPath)
             .setStartTime(gif.startTime)
             .outputOptions([
-                '-vf', `fps=${gif.fps},scale=${gif.scale_x}:${gif.scale_y}:flags=lanczos`
+                '-vf', `fps=${gif.fps},scale=${gif.scaleX}:${gif.scaleY}:flags=lanczos`
             ]);
 
         if (gif.duration) {

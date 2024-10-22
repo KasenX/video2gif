@@ -20,10 +20,10 @@ export const getPreferences = async (userId: string) => {
 
 const createPreferences = async (userId: string) => {
     await createPreferencesDB(userId, {
-        user_id: userId,
+        userId: userId,
         fps: 10,
-        scale_x: 320,
-        scale_y: -1,
+        scaleX: 320,
+        scaleY: -1,
         updated: new Date()
     });
 }
