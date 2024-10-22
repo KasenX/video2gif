@@ -49,7 +49,7 @@ const main = async () => {
     }
 
     while (true) {
-        receiveMessage();
+        await receiveMessage();
     }
 }
 
