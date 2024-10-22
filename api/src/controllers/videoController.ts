@@ -159,27 +159,33 @@ const resolveSettings = async (body: VideoConversionBody, userId: string): Promi
 
 const validateSettings = (settings: VideoConversionBody, videoDuration: number): boolean => {
     if (typeof settings.fps !== 'number' || settings.fps <= 0) {
+        console.error(`Invalid fps: ${settings.fps}`);
         return false;
     }
 
     if (typeof settings.scaleX !== 'number' || (settings.scaleX <= 0 && settings.scaleX !== -1)) {
+        console.error(`Invalid scaleX: ${settings.scaleX}`);
         return false;
     }
 
     if (typeof settings.scaleY !== 'number' || (settings.scaleY <= 0 && settings.scaleY !== -1)) {
+        console.error(`Invalid scaleY: ${settings.scaleY}`);
         return false;
     }
 
     if (typeof settings.startTime !== 'number' || settings.startTime < 0) {
+        console.error(`Invalid startTime: ${settings.startTime}`);
         return false;
     }
 
     if (settings.duration !== undefined && settings.duration !== null && (typeof settings.duration !== 'number' || settings.duration <= 0)) {
+        console.error(`Invalid duration: ${settings.duration}`);
         return false;
     }
 
-    const endTime = settings.startTime + (settings.duration || videoDuration);
+    const endTime = settings.startTime + (settings.duration || 0);
     if (endTime > videoDuration) {
+        console.error(`Invalid end time: ${endTime} (video duration: ${videoDuration}, start time: ${settings.startTime}, duration: ${settings.duration})`);
         return false;
     }
 
