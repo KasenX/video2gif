@@ -39,7 +39,7 @@ export const getGif = async (req: Request, res: Response) => {
         return res.status(400).json({ error: 'Failed to find the gif file' });
     }
 
-    if (gif.status === 'in_progress') {
+    if (gif.status === 'new' || gif.status === 'in_progress') {
         return res.status(202).json({ message: 'Gif is still being processed. Please check back later.' });
     }
 

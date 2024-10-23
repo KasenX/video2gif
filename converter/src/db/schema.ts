@@ -37,7 +37,8 @@ export interface GifTable {
     scaleY: number;
     startTime: number;
     duration?: number;
-    status: 'in_progress' | 'completed' | 'failed',
+    status: 'new' | 'in_progress' | 'completed' | 'failed',
+    statusChanged: ColumnType<Date, Date, Date>,
     created: ColumnType<Date, Date, never>,
     completed: ColumnType<Date | null, null, Date>
 }

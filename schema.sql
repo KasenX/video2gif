@@ -8,7 +8,7 @@ CREATE TABLE "video" (
     "uploaded" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TYPE gif_status AS ENUM ('in_progress', 'completed', 'failed');
+CREATE TYPE gif_status AS ENUM ('new', 'in_progress', 'completed', 'failed');
 
 CREATE TABLE "gif" (
     "id" UUID PRIMARY KEY,
@@ -23,6 +23,7 @@ CREATE TABLE "gif" (
     "startTime" DECIMAL NOT NULL,
     "duration" DECIMAL,
     "status" gif_status NOT NULL,
+    "statusChanged" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "completed" TIMESTAMP
 );

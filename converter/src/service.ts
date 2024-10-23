@@ -5,7 +5,7 @@ import { findVideo, findGif, updateGif } from './repository';
 import { storeVideoFile, uploadGifFile } from './aws';
 import { Gif } from './db/schema';
 
-export const processConvertRequest = async (gifId: string) => {
+export const processConvertRequest = async (gifId: string): Promise<void> => {
     const gif = await findGif(gifId);
 
     if (!gif) {
@@ -13,19 +13,32 @@ export const processConvertRequest = async (gifId: string) => {
         return;
     }
 
-    const video = await findVideo(gif.videoId);
+    try {
+        const video = await findVideo(gif.videoId);
 
-    if (!video) {
-        console.error(`Video with ID ${gif.videoId} not found`);
-        return;
+        if (!video) {
+            throw new Error(`Video with ID ${gif.videoId} not found`);
+        }
+
+        await updateGif(gif.id, {
+            status: 'in_progress',
+            statusChanged: new Date()
+        });
+
+        const videoPath = await storeVideoFile(video.id, video.extension);
+
+        await convertVideoToGif(gif, videoPath);
+    } catch (err) {
+        console.error('Error processing the conversion request', err);
+
+        await updateGif(gif.id, {
+            status: 'failed',
+            statusChanged: new Date()
+        });
     }
-
-    const videoPath = await storeVideoFile(video.id, video.extension);
-
-    await convertVideoToGif(gif, videoPath);
 };
 
-const convertVideoToGif = async (gif: Gif, videoPath: string) => {
+const convertVideoToGif = async (gif: Gif, videoPath: string): Promise<void> => {
     const gifPath = path.join(__dirname, '..', 'gifs', `${gif.id}.gif`);
 
     return new Promise<void>((resolve, reject) => {
@@ -48,6 +61,7 @@ const convertVideoToGif = async (gif: Gif, videoPath: string) => {
                 await updateGif(gif.id, {
                     size: fs.statSync(gifPath).size,
                     status: 'completed',
+                    statusChanged: new Date(),
                     completed: new Date(),
                 });
 
@@ -59,15 +73,10 @@ const convertVideoToGif = async (gif: Gif, videoPath: string) => {
                 resolve();
             })
             .on('error', async (err) => {
-                await updateGif(gif.id, {
-                    status: 'failed',
-                    completed: new Date()
-                });
                 throw err;
             })
             .save(gifPath);
         } catch (err) {
-            console.error('Error during conversion', err);
             // Reject the promise for unexpected errors
             reject(err);
         }

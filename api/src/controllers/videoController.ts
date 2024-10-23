@@ -226,7 +226,8 @@ export const convertVideo = async (req: Request, res: Response) => {
             scaleY: settings.scaleY!,
             startTime: settings.startTime!,
             duration: settings.duration,
-            status: 'in_progress',
+            status: 'new',
+            statusChanged: new Date(),
             created: new Date(),
             completed: null
         });
