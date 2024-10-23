@@ -2,6 +2,7 @@ import { SQSClient, ReceiveMessageCommand, DeleteMessageCommand } from '@aws-sdk
 import { getSecrets, getParameters } from './aws';
 import { initializeDb } from './db/connection';
 import { processConvertRequest } from './service';
+import { logWithTimestamp } from './utils';
 
 const client = new SQSClient({ region: 'ap-southeast-2' });
 const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/901444280953/n12134171-video2gif';
@@ -17,17 +18,17 @@ const receiveMessage = async () => {
     const response = await client.send(receiveCommand);
     // No messages in the queue -> continue polling
     if (!response.Messages || !response.Messages[0] || !response.Messages[0].Body) {
-        console.log('No messages in the queue');
+        logWithTimestamp('No messages in the queue');
         return;
     }
 
     const gifId = response.Messages[0].Body;
 
-    console.log(`Processing request for gifId: ${gifId}`);
+    logWithTimestamp(`Processing request for gifId: ${gifId}`);
 
     await processConvertRequest(gifId);
 
-    console.log(`Request for gifId: ${gifId} processed`);
+    logWithTimestamp(`Request for gifId: ${gifId} processed`);
 
     const deleteCommand = new DeleteMessageCommand({
         QueueUrl: queueUrl,
@@ -35,10 +36,12 @@ const receiveMessage = async () => {
     });
 
     await client.send(deleteCommand);
+
+    logWithTimestamp(`Message for gifId: ${gifId} deleted`);
 }
 
 const main = async () => {
-    console.log('Initializing the converter');
+    logWithTimestamp('Initializing the converter');
 
     try {
         const credentials = await getSecrets();
@@ -49,8 +52,8 @@ const main = async () => {
         console.error('Error initializing the converter', error);
         return;
     }
-    
-    console.log('Converter initialized');
+
+    logWithTimestamp('Converter initialized');
 
     while (true) {
         await receiveMessage();
