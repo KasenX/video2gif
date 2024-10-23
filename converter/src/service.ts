@@ -28,41 +28,48 @@ export const processConvertRequest = async (gifId: string) => {
 const convertVideoToGif = async (gif: Gif, videoPath: string) => {
     const gifPath = path.join(__dirname, '..', 'gifs', `${gif.id}.gif`);
 
-    try {
-        const ffmpegCommmand = ffmpeg(videoPath)
-            .setStartTime(gif.startTime)
-            .outputOptions([
-                '-vf', `fps=${gif.fps},scale=${gif.scaleX}:${gif.scaleY}:flags=lanczos`
-            ]);
+    return new Promise<void>((resolve, reject) => {
+        try {
+            const ffmpegCommmand = ffmpeg(videoPath)
+                .setStartTime(gif.startTime)
+                .outputOptions([
+                    '-vf', `fps=${gif.fps},scale=${gif.scaleX}:${gif.scaleY}:flags=lanczos`
+                ]);
 
-        if (gif.duration) {
-            ffmpegCommmand.duration(gif.duration);
-        }
+            if (gif.duration) {
+                ffmpegCommmand.duration(gif.duration);
+            }
 
-        ffmpegCommmand
-        .on('end', async () => {
-            // Upload the gif file to S3
-            await uploadGifFile(gifPath, gif.id);
+            ffmpegCommmand
+            .on('end', async () => {
+                // Upload the gif file to S3
+                await uploadGifFile(gifPath, gif.id);
 
-            await updateGif(gif.id, {
-                size: fs.statSync(gifPath).size,
-                status: 'completed',
-                completed: new Date(),
-            });
+                await updateGif(gif.id, {
+                    size: fs.statSync(gifPath).size,
+                    status: 'completed',
+                    completed: new Date(),
+                });
 
-            // Delete the video and gif file from the local file system
-            fs.unlinkSync(videoPath);
-            fs.unlinkSync(gifPath);
-        })
-        .on('error', async (err) => {
-            await updateGif(gif.id, {
-                status: 'failed',
-                completed: new Date()
-            });
+                // Delete the video and gif file from the local file system
+                fs.unlinkSync(videoPath);
+                fs.unlinkSync(gifPath);
+
+                // Resolve the promise when the conversion is successful
+                resolve();
+            })
+            .on('error', async (err) => {
+                await updateGif(gif.id, {
+                    status: 'failed',
+                    completed: new Date()
+                });
+                throw err;
+            })
+            .save(gifPath);
+        } catch (err) {
             console.error('Error during conversion', err);
-        })
-        .save(gifPath);
-    } catch (err) {
-        console.error('Unexpected error during conversion', err);
-    }
+            // Reject the promise for unexpected errors
+            reject(err);
+        }
+    });
 };
