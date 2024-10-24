@@ -63,6 +63,7 @@ const convertVideoToGif = async (gif: Gif, videoPath: string): Promise<void> => 
                     status: 'completed',
                     statusChanged: new Date(),
                     completed: new Date(),
+                    fileInS3: true
                 });
 
                 // Delete the video and gif file from the local file system

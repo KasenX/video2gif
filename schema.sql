@@ -5,7 +5,8 @@ CREATE TABLE "video" (
     "extension" VARCHAR(255) NOT NULL,
     "duration" DECIMAL NOT NULL,
     "size" BIGINT NOT NULL,
-    "uploaded" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "uploaded" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "fileInS3" BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TYPE gif_status AS ENUM ('new', 'in_progress', 'completed', 'failed');
@@ -25,7 +26,8 @@ CREATE TABLE "gif" (
     "status" gif_status NOT NULL,
     "statusChanged" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "completed" TIMESTAMP
+    "completed" TIMESTAMP,
+    "fileInS3" BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE "preferences" (

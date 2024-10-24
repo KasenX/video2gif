@@ -18,7 +18,8 @@ export interface VideoTable {
     extension: string,
     duration: number,
     size: number,
-    uploaded: ColumnType<Date, Date, never>
+    uploaded: ColumnType<Date, Date, never>,
+    fileInS3: boolean
 }
 
 export type Video = Selectable<VideoTable>;
@@ -40,7 +41,8 @@ export interface GifTable {
     status: 'new' | 'in_progress' | 'completed' | 'failed',
     statusChanged: ColumnType<Date, Date, Date>,
     created: ColumnType<Date, Date, never>,
-    completed: ColumnType<Date | null, null, Date>
+    completed: ColumnType<Date | null, null, Date>,
+    fileInS3: boolean
 }
 
 export type Gif = Selectable<GifTable>;

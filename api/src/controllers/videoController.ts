@@ -126,7 +126,8 @@ export const uploadVideo = async (req: Request, res: Response) => {
                 extension: fileExtension,
                 duration: duration,
                 size: file.size,
-                uploaded: new Date()
+                uploaded: new Date(),
+                fileInS3: true
             });
 
             await uploadVideoFile(file.tempFilePath, videoId, fileExtension);
@@ -229,7 +230,8 @@ export const convertVideo = async (req: Request, res: Response) => {
             status: 'new',
             statusChanged: new Date(),
             created: new Date(),
-            completed: null
+            completed: null,
+            fileInS3: false
         });
 
         const gifUrl = `${req.protocol}://${req.get('host')}/api/gifs/${gifId}`;
