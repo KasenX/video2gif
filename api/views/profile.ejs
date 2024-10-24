@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile - video2gif</title>
+  <link rel="stylesheet" href="https://cdn.video2gif.cab432.com/style.css">
+</head>
+
+<body class="bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 min-h-screen">
+  <header class="bg-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-2">
+        <h1 class="text-xl font-bold text-gray-800">
+          <a href="/">Video to GIF Converter</a>
+        </h1>
+        <div class="flex">
+          <a href="/gallery" class="text-gray-700 hover:text-indigo-500 transition duration-300 flex items-center justify-between">
+            <span class="text-sm font-semibold">Gallery</span>
+            <!-- https://www.svgrepo.com/svg/528991/gallery -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-6 w-6 ml-1">
+              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+              <g id="SVGRepo_iconCarrier">
+                <circle cx="16" cy="8" r="2" stroke-width="1.5"></circle>
+                <path d="M2 12.5001L3.75159 10.9675C4.66286 10.1702 6.03628 10.2159 6.89249 11.0721L11.1822 15.3618C11.8694 16.0491 12.9512 16.1428 13.7464 15.5839L14.0446 15.3744C15.1888 14.5702 16.7369 14.6634 17.7765 15.599L21 18.5001" stroke-width="1.5" stroke-linecap="round"></path>
+                <path d="M22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C21.5093 4.43821 21.8356 5.80655 21.9449 8" stroke-width="1.5" stroke-linecap="round"></path>
+              </g>
+            </svg>
+          </a>
+          <a href="/profile" class="text-gray-700 hover:text-indigo-500 transition duration-300 flex items-center justify-between ml-3">
+            <span class="text-sm font-semibold">Profile</span>
+            <!-- https://www.svgrepo.com/svg/487692/profile -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-6 w-6 ml-1" fill="currentColor">
+              <path d="M12,11A5,5,0,1,0,7,6,5.006,5.006,0,0,0,12,11Zm0-8A3,3,0,1,1,9,6,3,3,0,0,1,12,3ZM3,22V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v4a1,1,0,0,1-2,0V18a3,3,0,0,0-3-3H8a3,3,0,0,0-3,3v4a1,1,0,0,1-2,0Z"/>
+            </svg>
+          </a>
+          <a href="/logout" class="text-gray-700 hover:text-red-500 transition duration-300 flex items-center justify-between ml-3">
+            <span class="text-sm font-semibold">Logout</span>
+            <!-- https://www.svgrepo.com/svg/520828/logout -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -0.5 24 24" class="h-8 w-8" fill="currentColor">
+              <path d="M11.75 9.874C11.75 10.2882 12.0858 10.624 12.5 10.624C12.9142 10.624 13.25 10.2882 13.25 9.874H11.75ZM13.25 4C13.25 3.58579 12.9142 3.25 12.5 3.25C12.0858 3.25 11.75 3.58579 11.75 4H13.25ZM9.81082 6.66156C10.1878 6.48991 10.3542 6.04515 10.1826 5.66818C10.0109 5.29121 9.56615 5.12478 9.18918 5.29644L9.81082 6.66156ZM5.5 12.16L4.7499 12.1561L4.75005 12.1687L5.5 12.16ZM12.5 19L12.5086 18.25C12.5029 18.25 12.4971 18.25 12.4914 18.25L12.5 19ZM19.5 12.16L20.2501 12.1687L20.25 12.1561L19.5 12.16ZM15.8108 5.29644C15.4338 5.12478 14.9891 5.29121 14.8174 5.66818C14.6458 6.04515 14.8122 6.48991 15.1892 6.66156L15.8108 5.29644ZM13.25 9.874V4H11.75V9.874H13.25ZM9.18918 5.29644C6.49843 6.52171 4.7655 9.19951 4.75001 12.1561L6.24999 12.1639C6.26242 9.79237 7.65246 7.6444 9.81082 6.66156L9.18918 5.29644ZM4.75005 12.1687C4.79935 16.4046 8.27278 19.7986 12.5086 19.75L12.4914 18.25C9.08384 18.2892 6.28961 15.5588 6.24995 12.1513L4.75005 12.1687ZM12.4914 19.75C16.7272 19.7986 20.2007 16.4046 20.2499 12.1687L18.7501 12.1513C18.7104 15.5588 15.9162 18.2892 12.5086 18.25L12.4914 19.75ZM20.25 12.1561C20.2345 9.19951 18.5016 6.52171 15.8108 5.29644L15.1892 6.66156C17.3475 7.6444 18.7376 9.79237 18.75 12.1639L20.25 12.1561Z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex items-center justify-center mt-16">
+    <div class="w-full max-w-lg p-10 bg-white rounded-lg shadow-lg">
+      <h2 class="text-2xl font-bold text-gray-800 mb-4">User Profile</h2>
+      
+      <!-- Display user email -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700">Email:</label>
+        <p class="mt-1 text-gray-500"><%= email %></p>
+      </div>
+      
+      <!-- Editable preferences form -->
+      <form id="profile-form" method="POST">
+        <div class="mb-4">
+          <label for="fps" class="block text-sm font-medium text-gray-700">Default FPS:</label>
+          <input type="text" id="fps" name="fps" value="<%= fps %>"class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="e.g. 10">
+          <p id="fps-error" class="text-red-500 text-sm mt-1 hidden">Invalid FPS value. Please enter a positive integer.</p>
+        </div>
+        
+        <div class="mb-4">
+          <label for="scaleX" class="block text-sm font-medium text-gray-700">Default Scale X:</label>
+          <input type="text" id="scale-x" name="scaleX" value="<%= scaleX %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="e.g. 320 or Auto">
+          <p id="scale-x-error" class="text-red-500 text-sm mt-1 hidden">Invalid Scale X value. Please enter a positive integer or "Auto".</p>
+        </div>
+        
+        <div class="mb-4">
+          <label for="scaleY" class="block text-sm font-medium text-gray-700">Default Scale Y:</label>
+          <input type="text" id="scale-y" name="scaleY" value="<%= scaleY %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="e.g. 240 or Auto">
+          <p id="scale-y-error" class="text-red-500 text-sm mt-1 hidden">Invalid Scale Y value. Please enter a positive integer or "Auto".</p>
+        </div>
+
+        <button id="save-button" type="submit" class="w-full bg-purple-600 text-white font-bold py-2 px-4 rounded-md hover:bg-purple-700 transition duration-300 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500">Save Preferences</button>
+      </form>
+    </div>
+  </main>
+  <script src="https://cdn.video2gif.cab432.com/main.js"></script>
+  <script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const fpsInput = document.getElementById('fps');
+      const scaleXInput = document.getElementById('scale-x');
+      const scaleYInput = document.getElementById('scale-y');
+      const fpsError = document.getElementById('fps-error');
+      const scaleXError = document.getElementById('scale-x-error');
+      const scaleYError = document.getElementById('scale-y-error');
+      const saveButton = document.getElementById('save-button');
+
+      function validateForm() {
+        const isFpsValid = validateFps(fpsInput.value);
+        const isScaleXValid = validateScale(scaleXInput.value);
+        const isScaleYValid = validateScale(scaleYInput.value);
+        fpsError.classList.toggle('hidden', isFpsValid);
+        scaleXError.classList.toggle('hidden', isScaleXValid);
+        scaleYError.classList.toggle('hidden', isScaleYValid);
+        saveButton.disabled = !isFpsValid || !isScaleXValid || !isScaleYValid;
+      }
+
+      // Attach validation on input change
+      fpsInput.addEventListener('input', validateForm);
+      scaleXInput.addEventListener('input', validateForm);
+      scaleYInput.addEventListener('input', validateForm);
+    });
+  </script>
+</body>
+</html>

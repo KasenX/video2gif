@@ -1,0 +1,36 @@
+{
+    "compilerOptions": {
+        "target": "ES2020",                          // Target JavaScript version
+        "lib": ["ES2020"],                           // Include standard library declarations
+        "module": "NodeNext",                        // Module system
+        "outDir": "dist/src",                        // Output directory for compiled files
+        "rootDir": "src",                            // Root directory of input files
+        "strict": true,                              // Enable all strict type-checking options
+        "noUncheckedIndexedAccess": true,            // Prevents you from accessing an array or object without first checking if it's defined. This is a great way to prevent runtime errors, and should really be included in strict.
+        "noImplicitOverride": true,                  // Makes the override keyword actually useful in classes
+        "noImplicitAny": true,                       // Raise an error on expressions and declarations with an implied 'any' type
+        "noImplicitThis": true,                      // Raise an error on 'this' expressions with an implied 'any' type
+        "noFallthroughCasesInSwitch": true,          // Report errors for fallthrough cases in switch statements
+        "forceConsistentCasingInFileNames": true,    // Ensure consistent casing in import paths
+        "moduleResolution": "NodeNext",              // Module resolution strategy
+        "esModuleInterop": true,                     // Emit additional JS code to correctly support default imports
+        "skipLibCheck": true,                        // Skip type checking of all declaration files
+        "allowJs": true,                             // Allow JavaScript files to be compiled
+        "resolveJsonModule": true,                   // Include modules from JSON files
+        "moduleDetection": "force",                  // Use the module field in package.json to determine the module type
+        "isolatedModules": true,                     // Prevents a few TS features which are unsafe when treating modules as isolated files
+        "importHelpers": true,                       // Import helper functions from tslib
+        "types": ["node"],                           // Include type definitions for Node.js
+        "typeRoots": ["./node_modules/@types", "src/types"]
+    },
+    "include": [
+        "src/*.ts",
+        "src/**/*.ts",
+        "src/*.d.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}
+  
