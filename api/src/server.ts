@@ -32,7 +32,7 @@ const startServer = async () => {
         initializeDb(parameters.dbHost, parameters.dbName, credentials.dbUser, credentials.dbPassword);
 
         app.listen(port, () => {
-            console.log(`Server is running on url: http://${parameters.url}:${port}`);
+            console.log(`Server is running on url: http://localhost:${port}`);
         });
     } catch (error) {
         console.error('Error starting the server', error);
