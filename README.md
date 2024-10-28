@@ -37,3 +37,9 @@ Additionally, they can set default settings for the video-to-GIF conversion.
 
 ### REST API
 ![REST API](./preview/api.png)
+
+## Technologies used
+- **Backend:** Node.js, Express
+- **Frontend:** Express, EJS, Tailwind CSS
+- **Video Processing:** ffmpeg
+- **Cloud Infrastructure:** AWS
